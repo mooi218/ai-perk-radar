@@ -1,0 +1,12 @@
+{
+  "name": "AI Perk Radar",
+  "tagline": "Find AI, developer, and student perks you can actually use.",
+  "description": "AI Perk Radar matches your profile with verified student benefits, developer credits, AI offers, research programs, and useful free tiers. It ranks relevant opportunities, highlights important eligibility and limitations, and links directly to official sources.",
+  "category": "productivity",
+  "slug": "ai-perk-radar",
+  "bundled_executas": {
+    "matcher": {
+      "path": "./executas/ai-perk-radar"
+    }
+  }
+}

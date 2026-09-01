@@ -1,0 +1,554 @@
+[
+  {
+    "id": "google-ai-plus-student-2026",
+    "title": "Google AI Plus - 12 months free",
+    "provider": "Google",
+    "regions": [
+      "JP"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "creator"
+    ],
+    "free": true,
+    "value_score": 75,
+    "value_display": "About JPY 8,700",
+    "deadline": "2026-12-31",
+    "announced": "2026-08-20",
+    "verified_at": "2026-09-02",
+    "source_url": "https://blog.google/intl/ja-jp/company-news/technology/gemini-student-offer-google-ai/",
+    "reason": "Eligible higher-education students in Japan can receive Google AI Plus for 12 months at no charge. The offer includes higher Gemini limits and 400 GB of storage."
+  },
+  {
+    "id": "aws-student-rewards-2026",
+    "title": "AWS Student Rewards",
+    "provider": "Amazon Web Services",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 95,
+    "value_display": "Up to about USD 579",
+    "deadline": null,
+    "announced": "2026-08-20",
+    "verified_at": "2026-09-02",
+    "source_url": "https://builder.aws.com/content/3I1qkUtKhwU6K1VaGkfYRwtbz3o/introducing-student-rewards-on-aws-builder-center",
+    "reason": "Verified higher-education students worldwide can unlock 12 months of AWS Skill Builder Premium. Additional badges can unlock AWS credits and a certification exam voucher."
+  },
+  {
+    "id": "zed-student-plan-2026",
+    "title": "Zed Student - Pro free for one year",
+    "provider": "Zed",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding"
+    ],
+    "free": true,
+    "value_score": 82,
+    "value_display": "12 months Pro + USD 10/mo AI credits",
+    "deadline": null,
+    "announced": "2026-03-09",
+    "verified_at": "2026-09-02",
+    "source_url": "https://zed.dev/education",
+    "reason": "Verified university students worldwide receive Zed Pro for one year, including unlimited edit predictions and USD 10 per month in AI token credits."
+  },
+  {
+    "id": "anthropic-scientist-team-2026",
+    "title": "Claude Team plan for scientists",
+    "provider": "Anthropic",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": true,
+    "interests": [
+      "ai",
+      "coding",
+      "research"
+    ],
+    "free": true,
+    "value_score": 96,
+    "value_display": "Standard seats free for 12 months",
+    "deadline": null,
+    "announced": "2026-08-27",
+    "verified_at": "2026-09-02",
+    "source_url": "https://www.anthropic.com/news/expanding-support-for-scientists",
+    "reason": "Anthropic opened an initial 10,000 seats for scientists worldwide. Standard Claude Team seats are free for one year, with discounted premium seats also available."
+  },
+  {
+    "id": "github-copilot-student",
+    "title": "GitHub Copilot Student",
+    "provider": "GitHub",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding"
+    ],
+    "free": true,
+    "value_score": 90,
+    "value_display": "Free Copilot access for verified students",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/enable-copilot/set-up-for-students",
+    "reason": "Verified students on GitHub Education can access GitHub Copilot Student for free. Eligibility is periodically rechecked by GitHub."
+  },
+  {
+    "id": "github-student-developer-pack",
+    "title": "GitHub Student Developer Pack",
+    "provider": "GitHub",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 98,
+    "value_display": "GitHub Pro + dozens of partner offers",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://education.github.com/pack/",
+    "reason": "Verified students can access GitHub Pro plus a rotating collection of developer tools, cloud credits, learning subscriptions, and other partner offers."
+  },
+  {
+    "id": "azure-for-students",
+    "title": "Azure for Students",
+    "provider": "Microsoft Azure",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 92,
+    "value_display": "USD 100 Azure credit + free services",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://azure.microsoft.com/en-us/pricing/offers/ms-azr-0170p",
+    "reason": "Eligible university students can receive USD 100 in Azure credits for the first 12 months plus selected free services. No credit card is required at signup."
+  },
+  {
+    "id": "jetbrains-student-pack",
+    "title": "JetBrains Student Pack",
+    "provider": "JetBrains",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "coding"
+    ],
+    "free": true,
+    "value_score": 96,
+    "value_display": "JetBrains IDEs and .NET tools free",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://sales.jetbrains.com/hc/en-gb/articles/207241195-Do-you-offer-free-educational-licenses-for-students-and-teachers",
+    "reason": "Students can get JetBrains IDEs and .NET tools free through the Student Pack. Educational licenses cannot be used for commercial work."
+  },
+  {
+    "id": "figma-education",
+    "title": "Figma for Education",
+    "provider": "Figma",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "creator",
+      "coding"
+    ],
+    "free": true,
+    "value_score": 85,
+    "value_display": "Professional plan features free",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://help.figma.com/hc/en-us/articles/360041061214-Figma-for-Education",
+    "reason": "Eligible higher-education students can create free Education teams with Professional-plan access. Availability can vary by region."
+  },
+  {
+    "id": "notion-education",
+    "title": "Notion Education Plan",
+    "provider": "Notion",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "creator"
+    ],
+    "free": true,
+    "value_score": 76,
+    "value_display": "Education workspace free",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://www.notion.com/help/notion-for-education",
+    "reason": "Eligible university students with a recognized school email can use Notion's individual Education Plan for free. Student status is reverified annually."
+  },
+  {
+    "id": "autodesk-education",
+    "title": "Autodesk Education Plan",
+    "provider": "Autodesk",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "creator",
+      "coding"
+    ],
+    "free": true,
+    "value_score": 94,
+    "value_display": "1 year of Autodesk software access",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://www.autodesk.com/support/account/education/students-educators/overview",
+    "reason": "Eligible students get one year of free educational access to Autodesk software and services, renewable while eligible. Education licenses cannot be used commercially."
+  },
+  {
+    "id": "github-pack-heroku",
+    "title": "Heroku Student Credits",
+    "provider": "Heroku",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 93,
+    "value_display": "USD 13/month credit for 24 months",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://education.github.com/pack/",
+    "reason": "The GitHub Student Developer Pack currently includes USD 13 of Heroku credit per month for 24 months."
+  },
+  {
+    "id": "github-pack-termius",
+    "title": "Termius Student",
+    "provider": "Termius",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 78,
+    "value_display": "Pro and Team features free",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://education.github.com/pack/",
+    "reason": "Verified GitHub Education students can access Termius Pro and Team features for free while they remain students."
+  },
+  {
+    "id": "github-pack-sentry",
+    "title": "Sentry Student",
+    "provider": "Sentry",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 78,
+    "value_display": "Student Team features for 1 year",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://education.github.com/pack/",
+    "reason": "The GitHub Student Developer Pack includes a Sentry student offer with Team features and expanded monitoring quotas for one year, with renewal available."
+  },
+  {
+    "id": "github-pack-bootstrap-studio",
+    "title": "Bootstrap Studio Student License",
+    "provider": "Bootstrap Studio",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "creator"
+    ],
+    "free": true,
+    "value_score": 70,
+    "value_display": "Free license while you are a student",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://education.github.com/pack/",
+    "reason": "The GitHub Student Developer Pack includes a free Bootstrap Studio license while you remain a student."
+  },
+  {
+    "id": "github-pack-lambdatest",
+    "title": "LambdaTest Student",
+    "provider": "LambdaTest",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 72,
+    "value_display": "Live Plan free for 1 year",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://education.github.com/pack/",
+    "reason": "The GitHub Student Developer Pack currently includes LambdaTest's Live Plan free for one year."
+  },
+  {
+    "id": "github-pack-codedex",
+    "title": "Cod?dex Club Student",
+    "provider": "Cod?dex",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "coding"
+    ],
+    "free": true,
+    "value_score": 66,
+    "value_display": "6 months of Cod?dex Club",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://education.github.com/pack/",
+    "reason": "Verified students can receive six months of Cod?dex Club through the GitHub Student Developer Pack."
+  },
+  {
+    "id": "cloudflare-workers-free",
+    "title": "Cloudflare Workers Free",
+    "provider": "Cloudflare",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 75,
+    "value_display": "No-cost serverless tier",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://developers.cloudflare.com/workers/platform/pricing/",
+    "reason": "Cloudflare provides a Workers Free plan with monthly usage allowances for Workers and related services."
+  },
+  {
+    "id": "supabase-free",
+    "title": "Supabase Free",
+    "provider": "Supabase",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 80,
+    "value_display": "Free database and backend tier",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://supabase.com/pricing",
+    "reason": "Supabase's Free plan includes a Postgres database, unlimited API requests, authentication quotas, storage, and bandwidth for small projects."
+  },
+  {
+    "id": "firebase-spark",
+    "title": "Firebase Spark Plan",
+    "provider": "Google Firebase",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 78,
+    "value_display": "No-cost Firebase usage",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://firebase.google.com/pricing",
+    "reason": "Firebase's Spark plan provides no-cost usage quotas for multiple Firebase services and does not require a payment method."
+  },
+  {
+    "id": "mongodb-atlas-free",
+    "title": "MongoDB Atlas Free Cluster",
+    "provider": "MongoDB",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 74,
+    "value_display": "Free Atlas database cluster",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/",
+    "reason": "MongoDB Atlas Free clusters provide a small development database environment and do not expire."
+  },
+  {
+    "id": "netlify-free",
+    "title": "Netlify Free",
+    "provider": "Netlify",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud",
+      "creator"
+    ],
+    "free": true,
+    "value_score": 75,
+    "value_display": "300 usage credits/month",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://www.netlify.com/pricing/",
+    "reason": "Netlify's Free plan has no monthly fee and includes 300 usage credits per month for deployment and platform usage."
+  },
+  {
+    "id": "render-free",
+    "title": "Render Free",
+    "provider": "Render",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 77,
+    "value_display": "Free web services and static sites",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://render.com/docs/free",
+    "reason": "Render offers free web services and static sites for hobby projects and testing. Free web services have usage and idle-suspension limits."
+  },
+  {
+    "id": "groq-free-tier",
+    "title": "GroqCloud Free Tier",
+    "provider": "Groq",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding"
+    ],
+    "free": true,
+    "value_score": 83,
+    "value_display": "Rate-limited AI API access",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://console.groq.com/docs/rate-limits",
+    "reason": "GroqCloud maintains a Free tier with model-specific request and token rate limits for API experimentation."
+  },
+  {
+    "id": "neon-free",
+    "title": "Neon Free Postgres",
+    "provider": "Neon",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": false,
+    "interests": [
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 80,
+    "value_display": "Free serverless Postgres tier",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://neon.com/blog/new-usage-based-pricing",
+    "reason": "Neon provides a Free serverless Postgres plan with included compute, storage, branching, and data-transfer allowances."
+  }
+]

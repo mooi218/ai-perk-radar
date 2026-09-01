@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tool-dev-ai-perk-radar"
+version = "0.1.1"
+description = "Executa for the ai-perk-radar Anna App"
+requires-python = ">=3.10"
+
+[project.scripts]
+"tool-dev-ai-perk-radar" = "ai_perk_radar_plugin:main"
+
+[tool.setuptools]
+py-modules = ["ai_perk_radar_plugin"]

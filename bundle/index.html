@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Perk Radar</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #1d211d;
+      background: #f4f6f2;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(170, 220, 170, .28), transparent 38%),
+        #f4f6f2;
+    }
+
+    button, select, input {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(880px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 72px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border: 1px solid #d6ddd2;
+      border-radius: 999px;
+      background: rgba(255,255,255,.7);
+      font-size: 12px;
+      font-weight: 700;
+      color: #536052;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3d9b55;
+    }
+
+    h1 {
+      max-width: 680px;
+      margin: 17px 0 10px;
+      font-size: clamp(36px, 7vw, 58px);
+      line-height: .98;
+      letter-spacing: -0.055em;
+    }
+
+    .lead {
+      max-width: 620px;
+      margin: 0 0 30px;
+      color: #697068;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .panel {
+      padding: 24px;
+      border: 1px solid #dde2da;
+      border-radius: 24px;
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 18px 45px rgba(44, 55, 43, .07);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .field-label,
+    legend {
+      display: block;
+      margin-bottom: 9px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #667064;
+    }
+
+    select {
+      width: 100%;
+      min-height: 46px;
+      padding: 0 13px;
+      border: 1px solid #d5dbd2;
+      border-radius: 12px;
+      background: white;
+      color: #20251f;
+    }
+
+    fieldset {
+      min-width: 0;
+      margin: 22px 0 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .chip {
+      position: relative;
+    }
+
+    .chip input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chip span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 13px;
+      border: 1px solid #d7ddd4;
+      border-radius: 999px;
+      background: white;
+      color: #626a60;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+
+    .chip input:checked + span {
+      border-color: #253326;
+      background: #253326;
+      color: white;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    #find-btn {
+      min-height: 50px;
+      padding: 0 22px;
+      border: 0;
+      border-radius: 14px;
+      background: #1f2a20;
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(31,42,32,.16);
+    }
+
+    #find-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    #find-btn:disabled {
+      opacity: .55;
+      cursor: wait;
+      transform: none;
+    }
+
+    #status {
+      color: #7a8178;
+      font-size: 13px;
+    }
+
+    .results-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin: 34px 2px 13px;
+    }
+
+    .results-head h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -.025em;
+    }
+
+    #result-count {
+      color: #7c847a;
+      font-size: 13px;
+    }
+
+    #results {
+      display: grid;
+      gap: 13px;
+    }
+
+    .perk {
+      padding: 20px;
+      border: 1px solid #dce1d9;
+      border-radius: 20px;
+      background: #fff;
+    }
+
+    .perk-top {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .perk h3 {
+      margin: 0 0 5px;
+      font-size: 20px;
+      letter-spacing: -.025em;
+    }
+
+    .provider {
+      color: #7a8178;
+      font-size: 13px;
+    }
+
+    .score {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #e9f4e8;
+      color: #2a6b39;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 9px;
+      margin: 17px 0;
+    }
+
+    .meta-item {
+      padding: 11px;
+      border-radius: 12px;
+      background: #f5f7f3;
+    }
+
+    .meta-label {
+      display: block;
+      margin-bottom: 4px;
+      color: #858b82;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+
+    .meta-value {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .why {
+      margin: 0 0 16px;
+      color: #5e665c;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .perk a {
+      color: #203f27;
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .empty {
+      padding: 28px;
+      border: 1px dashed #ccd4c9;
+      border-radius: 18px;
+      color: #747c72;
+      text-align: center;
+    }
+
+    @media (max-width: 650px) {
+      .shell { width: min(100% - 20px, 880px); padding-top: 25px; }
+      .panel { padding: 18px; border-radius: 19px; }
+      .form-grid { grid-template-columns: 1fr; gap: 15px; }
+      .meta { grid-template-columns: 1fr; }
+      .perk-top { align-items: center; }
+    }
+  
+    .perk-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .perk-badge {
+      display: inline-flex;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: #f0f3ee;
+      color: #697267;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .07em;
+    }
+
+    .perk-badge-new {
+      background: #e6f5e8;
+      color: #277139;
+    }
+
+    .show-more {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid #d5ddd2;
+      border-radius: 14px;
+      background: white;
+      color: #344035;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .show-more:hover {
+      background: #f5f7f3;
+    }
+
+  
+    .limited-toggle {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 24px;
+      color: #596257;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .limited-toggle input {
+      width: 17px;
+      height: 17px;
+      accent-color: #253326;
+    }
+
+  
+    .result-section {
+      margin-top: 30px;
+    }
+
+    .result-section:first-of-type {
+      margin-top: 16px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 2px 12px;
+    }
+
+    .section-head h3 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -.02em;
+    }
+
+    .section-head p {
+      margin: 4px 0 0;
+      color: #81877e;
+      font-size: 12px;
+    }
+
+    .section-head > span {
+      color: #7c847a;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .section-cards {
+      display: grid;
+      gap: 13px;
+    }
+
+    .ai-take {
+      border-color: #bed4bf;
+      background:
+        linear-gradient(
+          135deg,
+          #ffffff,
+          #f3faf2
+        );
+    }
+
+    .perk-badge-check {
+      background: #fff2d7;
+      color: #8b5b00;
+    }
+
+    .perk-badge-bundle {
+      background: #ececf8;
+      color: #54548b;
+    }
+
+    .parent-note {
+      margin-top: 12px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #f4f4f8;
+      color: #686879;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .caution {
+      margin: 0 0 16px;
+      padding: 11px 12px;
+      border: 1px solid #eadfc6;
+      border-radius: 12px;
+      background: #fffaf0;
+      color: #73654a;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .caution strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #695832;
+    }
+
+  
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .language-btn {
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid #d6ddd2;
+      border-radius: 999px;
+      background: rgba(255,255,255,.78);
+      color: #536052;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .language-btn:hover {
+      background: #fff;
+    }
+
+    .checked-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 15px;
+      padding-top: 12px;
+      border-top: 1px solid #edf0eb;
+    }
+
+    .checked-date {
+      color: #858b82;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .catalog-checked {
+      margin-top: -5px;
+      margin-bottom: 20px;
+      color: #81877e;
+      font-size: 12px;
+    }
+
+  </style>
+
+  <script src="./anna-tool-ids.js" defer></script>
+  <script src="./app.js" type="module"></script>
+</head>
+
+<body>
+  <main class="shell">
+    <div class="top-row">
+      <div class="eyebrow"><span class="dot"></span> Fresh opportunities / verified sources</div>
+
+      <button
+        id="language-btn"
+        class="language-btn"
+        type="button"
+        aria-label="Switch language"
+      >Language</button>
+    </div>
+
+    <h1>Find the perks you're actually eligible for.</h1>
+
+    <p class="lead">
+      AI subscriptions, developer credits, student plans and early programs.
+      Tell the radar who you are and it will rank the best current opportunities.
+    </p>
+
+    <section class="panel">
+      <div class="form-grid">
+        <label>
+          <span class="field-label">Country</span>
+          <select id="country">
+            <option value="JP">Japan</option>
+            <option value="OTHER">Outside Japan</option>
+          </select>
+        </label>
+
+        <label>
+          <span class="field-label">What matters most?</span>
+          <select id="priority">
+            <option value="free">Free first</option>
+            <option value="value">Biggest value</option>
+            <option value="deadline">Expiring soon</option>
+          </select>
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>You are</legend>
+        <div class="chips">
+          <label class="chip">
+            <input id="student" type="checkbox" checked />
+            <span>University student</span>
+          </label>
+
+          <label class="chip">
+            <input id="researcher" type="checkbox" />
+            <span>Researcher / lab member</span>
+          </label>
+
+          <label class="chip">
+            <input id="developer" type="checkbox" checked />
+            <span>Developer</span>
+          </label>
+
+          <label class="chip">
+            <input id="creator" type="checkbox" />
+            <span>Creator</span>
+          </label>
+
+          <label class="chip">
+            <input id="founder" type="checkbox" />
+            <span>Founder / builder</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Interested in</legend>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" name="interest" value="ai" checked /><span>AI</span></label>
+          <label class="chip"><input type="checkbox" name="interest" value="coding" checked /><span>Coding</span></label>
+          <label class="chip"><input type="checkbox" name="interest" value="cloud" /><span>Cloud</span></label>
+          <label class="chip"><input type="checkbox" name="interest" value="research" /><span>Research</span></label>
+          <label class="chip"><input type="checkbox" name="interest" value="creator" /><span>Creator</span></label>
+        </div>
+      </fieldset>
+
+      <label class="limited-toggle">
+        <input id="limited-only" type="checkbox" />
+        <span>Show only time-limited offers</span>
+      </label>
+
+      <div class="action-row">
+        <button id="find-btn">Find my perks</button>
+        <span id="status">Ready.</span>
+      </div>
+    </section>
+
+    <div class="results-head">
+      <h2>Your matches</h2>
+      <span id="result-count"></span>
+    </div>
+
+    <section id="results">
+      <div class="empty">Run the radar to see your matches.</div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Build outputs
+dist/
+build/
+.build-pyinstaller/
+*.spec
+
+# Anna local/generated
+.anna/
+bundle/anna-tool-ids.js
+
+# Backups
+backups/
+*.bak
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

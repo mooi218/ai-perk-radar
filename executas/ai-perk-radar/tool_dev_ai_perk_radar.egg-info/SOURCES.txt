@@ -1,0 +1,7 @@
+ai_perk_radar_plugin.py
+pyproject.toml
+tool_dev_ai_perk_radar.egg-info/PKG-INFO
+tool_dev_ai_perk_radar.egg-info/SOURCES.txt
+tool_dev_ai_perk_radar.egg-info/dependency_links.txt
+tool_dev_ai_perk_radar.egg-info/entry_points.txt
+tool_dev_ai_perk_radar.egg-info/top_level.txt

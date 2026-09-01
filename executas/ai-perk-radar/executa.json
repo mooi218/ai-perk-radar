@@ -1,0 +1,45 @@
+{
+  "slug": "ai-perk-radar-matcher",
+  "name": "AI Perk Radar Matcher",
+  "version": "0.1.1",
+  "executa_type": "tool",
+  "description": "Matches user profiles against the verified AI Perk Radar opportunity catalog.",
+  "tool_id": "tool-dev-ai-perk-radar",
+  "type": "python",
+  "enabled": true,
+  "distribution": {
+    "active": "binary",
+    "profiles": {
+      "local": {
+        "type": "local",
+        "supports_protocol": true
+      },
+      "binary": {
+        "type": "binary",
+        "supports_protocol": true,
+        "binary_artifacts": {
+          "darwin-arm64": {
+            "path": "dist/ai-perk-radar-matcher-{version}-darwin-arm64.tar.gz",
+            "entrypoint": "ai-perk-radar-matcher",
+            "format": "tar.gz"
+          },
+          "darwin-x86_64": {
+            "path": "dist/ai-perk-radar-matcher-{version}-darwin-x86_64.tar.gz",
+            "entrypoint": "ai-perk-radar-matcher",
+            "format": "tar.gz"
+          },
+          "linux-x86_64": {
+            "path": "dist/ai-perk-radar-matcher-{version}-linux-x86_64.tar.gz",
+            "entrypoint": "ai-perk-radar-matcher",
+            "format": "tar.gz"
+          },
+          "windows-x86_64": {
+            "path": "dist/ai-perk-radar-matcher-{version}-windows-x86_64.zip",
+            "entrypoint": "ai-perk-radar-matcher.exe",
+            "format": "zip"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+[
+  {
+    "id": "google-ai-plus-student-2026",
+    "title": "Google AI Plus - 12 months free",
+    "provider": "Google",
+    "regions": [
+      "JP"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "creator"
+    ],
+    "free": true,
+    "value_score": 75,
+    "value_display": "About JPY 8,700",
+    "deadline": "2026-12-31",
+    "announced": "2026-08-20",
+    "verified_at": "2026-09-02",
+    "source_url": "https://blog.google/intl/ja-jp/company-news/technology/gemini-student-offer-google-ai/",
+    "reason": "Eligible higher-education students in Japan can receive Google AI Plus for 12 months at no charge. The offer includes higher Gemini limits and 400 GB of storage."
+  },
+  {
+    "id": "aws-student-rewards-2026",
+    "title": "AWS Student Rewards",
+    "provider": "Amazon Web Services",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding",
+      "cloud"
+    ],
+    "free": true,
+    "value_score": 95,
+    "value_display": "Up to about USD 579",
+    "deadline": null,
+    "announced": "2026-08-20",
+    "verified_at": "2026-09-02",
+    "source_url": "https://builder.aws.com/content/3I1qkUtKhwU6K1VaGkfYRwtbz3o/introducing-student-rewards-on-aws-builder-center",
+    "reason": "Verified higher-education students worldwide can unlock 12 months of AWS Skill Builder Premium. Additional badges can unlock AWS credits and a certification exam voucher."
+  },
+  {
+    "id": "zed-student-plan-2026",
+    "title": "Zed Student - Pro free for one year",
+    "provider": "Zed",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding"
+    ],
+    "free": true,
+    "value_score": 82,
+    "value_display": "12 months Pro + USD 10/mo AI credits",
+    "deadline": null,
+    "announced": "2026-03-09",
+    "verified_at": "2026-09-02",
+    "source_url": "https://zed.dev/education",
+    "reason": "Verified university students worldwide receive Zed Pro for one year, including unlimited edit predictions and USD 10 per month in AI token credits."
+  },
+  {
+    "id": "anthropic-scientist-team-2026",
+    "title": "Claude Team plan for scientists",
+    "provider": "Anthropic",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": false,
+    "researcher_required": true,
+    "interests": [
+      "ai",
+      "coding",
+      "research"
+    ],
+    "free": true,
+    "value_score": 96,
+    "value_display": "Standard seats free for 12 months",
+    "deadline": null,
+    "announced": "2026-08-27",
+    "verified_at": "2026-09-02",
+    "source_url": "https://www.anthropic.com/news/expanding-support-for-scientists",
+    "reason": "Anthropic opened an initial 10,000 seats for scientists worldwide. Standard Claude Team seats are free for one year, with discounted premium seats also available."
+  },
+  {
+    "id": "github-copilot-student",
+    "title": "GitHub Copilot Student",
+    "provider": "GitHub",
+    "regions": [
+      "GLOBAL"
+    ],
+    "student_required": true,
+    "researcher_required": false,
+    "interests": [
+      "ai",
+      "coding"
+    ],
+    "free": true,
+    "value_score": 90,
+    "value_display": "Free Copilot access for verified students",
+    "deadline": null,
+    "announced": null,
+    "verified_at": "2026-09-02",
+    "source_url": "https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/enable-copilot/set-up-for-students",
+    "reason": "Verified students on GitHub Education can access GitHub Copilot Student for free. Eligibility is periodically rechecked by GitHub."
+  }
+]

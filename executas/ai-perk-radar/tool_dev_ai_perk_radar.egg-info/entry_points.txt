@@ -1,0 +1,2 @@
+[console_scripts]
+tool-dev-ai-perk-radar = ai_perk_radar_plugin:main

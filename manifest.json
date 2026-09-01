@@ -1,0 +1,65 @@
+{
+  "schema": 2,
+  "permissions": [
+    "tools.invoke",
+    "storage.read",
+    "storage.write",
+    "llm.complete"
+  ],
+  "required_executas": [
+    {
+      "tool_id": "bundled:matcher",
+      "version": "latest"
+    }
+  ],
+  "tags": [
+    "ai-perk-radar"
+  ],
+  "ui": {
+    "bundle": {
+      "format": "static-spa",
+      "entry": "index.html",
+      "external_origins": []
+    },
+    "views": [
+      {
+        "name": "main",
+        "title": "ai-perk-radar",
+        "default": true,
+        "default_size": {
+          "w": 760,
+          "h": 720
+        },
+        "min_size": {
+          "w": 420,
+          "h": 520
+        }
+      }
+    ],
+    "host_api": {
+      "tools": [
+        "required:bundled:matcher"
+      ],
+      "storage": [
+        "get",
+        "set"
+      ],
+      "window": [
+        "set_title",
+        "ready"
+      ],
+      "llm": [
+        "complete"
+      ]
+    },
+    "csp_overrides": {},
+    "state_merge": "last_writer_wins"
+  },
+  "dev": {
+    "fixtures": [
+      "fixtures/*.jsonl"
+    ],
+    "seed_storage": {},
+    "user_id": 1
+  }
+}
