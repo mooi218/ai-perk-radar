@@ -1,7 +1,7 @@
 {
   "slug": "ai-perk-radar-matcher",
   "name": "AI Perk Radar Matcher",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "executa_type": "tool",
   "description": "Matches user profiles against the verified AI Perk Radar opportunity catalog.",
   "tool_id": "tool-dev-ai-perk-radar",
@@ -20,22 +20,22 @@
         "binary_artifacts": {
           "darwin-arm64": {
             "path": "dist/ai-perk-radar-matcher-{version}-darwin-arm64.tar.gz",
-            "entrypoint": "ai-perk-radar-matcher",
+            "entrypoint": "bin/tool-chiku-ai-perk-radar-matcher-68rpuryp",
             "format": "tar.gz"
           },
           "darwin-x86_64": {
             "path": "dist/ai-perk-radar-matcher-{version}-darwin-x86_64.tar.gz",
-            "entrypoint": "ai-perk-radar-matcher",
+            "entrypoint": "bin/tool-chiku-ai-perk-radar-matcher-68rpuryp",
             "format": "tar.gz"
           },
           "linux-x86_64": {
             "path": "dist/ai-perk-radar-matcher-{version}-linux-x86_64.tar.gz",
-            "entrypoint": "ai-perk-radar-matcher",
+            "entrypoint": "bin/tool-chiku-ai-perk-radar-matcher-68rpuryp",
             "format": "tar.gz"
           },
           "windows-x86_64": {
             "path": "dist/ai-perk-radar-matcher-{version}-windows-x86_64.zip",
-            "entrypoint": "ai-perk-radar-matcher.exe",
+            "entrypoint": "bin/tool-chiku-ai-perk-radar-matcher-68rpuryp.exe",
             "format": "zip"
           }
         }
