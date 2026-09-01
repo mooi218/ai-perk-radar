@@ -7,8 +7,8 @@ from pathlib import Path
 
 
 MANIFEST = {
-    "name": "tool-dev-ai-perk-radar",
-    "version": "0.3.0",
+    "display_name": "AI Perk Radar Matcher",
+    "version": "0.1.3",
     "tools": [
         {
             "name": "find_perks",

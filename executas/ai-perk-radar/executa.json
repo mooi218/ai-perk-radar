@@ -1,7 +1,7 @@
 {
   "slug": "ai-perk-radar-matcher",
   "name": "AI Perk Radar Matcher",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "executa_type": "tool",
   "description": "Matches user profiles against the verified AI Perk Radar opportunity catalog.",
   "tool_id": "tool-dev-ai-perk-radar",
@@ -16,6 +16,7 @@
       },
       "binary": {
         "type": "binary",
+        "executable_name": "tool-chiku-ai-perk-radar-matcher-68rpuryp",
         "supports_protocol": true,
         "binary_artifacts": {
           "darwin-arm64": {
