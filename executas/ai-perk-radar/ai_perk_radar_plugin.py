@@ -7,56 +7,81 @@ from pathlib import Path
 
 
 MANIFEST = {
+    "name": "tool-chiku-ai-perk-radar-matcher-68rpuryp",
     "display_name": "AI Perk Radar Matcher",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "tools": [
         {
             "name": "find_perks",
             "description": "Rank verified current AI, developer, student, and research perks for a user.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "country": {
+            "parameters": [
+                {
+                    "name": "country",
+                    "type": "string",
+                    "description": "User country group.",
+                    "required": True,
+                    "enum": ["JP", "OTHER"],
+                },
+                {
+                    "name": "student",
+                    "type": "boolean",
+                    "description": "Whether the user is a student.",
+                    "required": True,
+                },
+                {
+                    "name": "researcher",
+                    "type": "boolean",
+                    "description": "Whether the user is a researcher.",
+                    "required": True,
+                },
+                {
+                    "name": "developer",
+                    "type": "boolean",
+                    "description": "Whether the user is a developer.",
+                    "required": True,
+                },
+                {
+                    "name": "creator",
+                    "type": "boolean",
+                    "description": "Whether the user is a creator.",
+                    "required": True,
+                },
+                {
+                    "name": "founder",
+                    "type": "boolean",
+                    "description": "Whether the user is a founder.",
+                    "required": True,
+                },
+                {
+                    "name": "limited_only",
+                    "type": "boolean",
+                    "description": "Return only time-limited opportunities.",
+                    "required": True,
+                },
+                {
+                    "name": "priority",
+                    "type": "string",
+                    "description": "Ranking priority.",
+                    "required": True,
+                    "enum": ["free", "value", "deadline"],
+                },
+                {
+                    "name": "interests",
+                    "type": "array",
+                    "description": "Opportunity categories of interest.",
+                    "required": True,
+                    "items": {
                         "type": "string",
-                        "enum": ["JP", "OTHER"],
-                    },
-                    "student": {"type": "boolean"},
-                    "researcher": {"type": "boolean"},
-                    "developer": {"type": "boolean"},
-                    "creator": {"type": "boolean"},
-                    "founder": {"type": "boolean"},
-                    "limited_only": {"type": "boolean"},
-                    "priority": {
-                        "type": "string",
-                        "enum": ["free", "value", "deadline"],
-                    },
-                    "interests": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "enum": [
-                                "ai",
-                                "coding",
-                                "cloud",
-                                "research",
-                                "creator",
-                            ],
-                        },
+                        "enum": [
+                            "ai",
+                            "coding",
+                            "cloud",
+                            "research",
+                            "creator",
+                        ],
                     },
                 },
-                "required": [
-                    "country",
-                    "student",
-                    "researcher",
-                    "developer",
-                    "creator",
-                    "founder",
-                    "limited_only",
-                    "priority",
-                    "interests",
-                ],
-                "additionalProperties": False,
-            },
+            ],
         }
     ],
 }
