@@ -9,7 +9,7 @@ from pathlib import Path
 MANIFEST = {
     "name": "tool-chiku-ai-perk-radar-matcher-68rpuryp",
     "display_name": "AI Perk Radar Matcher",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "tools": [
         {
             "name": "find_perks",
@@ -324,7 +324,9 @@ def score_perk(perk, profile):
         score -= 12
         reasons.append("included in GitHub Student Developer Pack")
 
-    score = max(
+    ranking_score = score
+
+    match_score = max(
         1,
         min(99, score),
     )
@@ -342,7 +344,9 @@ def score_perk(perk, profile):
         "id": perk["id"],
         "title": perk["title"],
         "provider": perk["provider"],
-        "match_score": score,
+        "match_score": match_score,
+        "_ranking_score": ranking_score,
+        "_value_score": perk.get("value_score", 0),
         "value_display": (
             perk["value_display"]
         ),
@@ -381,6 +385,51 @@ def score_perk(perk, profile):
     }
 
 
+def ranking_key(item):
+    """Sort by match, then unclamped score, value, and stable id."""
+
+    return (
+        -item["match_score"],
+        -item.get(
+            "_ranking_score",
+            item["match_score"],
+        ),
+        -item.get("_value_score", 0),
+        item["id"],
+    )
+
+
+def is_recommendable(item):
+    return item.get("availability") != "check"
+
+
+def select_recommendation(items):
+    recommendable = [
+        item
+        for item in items
+        if is_recommendable(item)
+    ]
+
+    if not recommendable:
+        return None
+
+    return min(
+        recommendable,
+        key=ranking_key,
+    )
+
+
+def public_result(item):
+    if item is None:
+        return None
+
+    return {
+        key: value
+        for key, value in item.items()
+        if not key.startswith("_")
+    }
+
+
 def find_perks(args):
     perks = load_perks()
     ranked = []
@@ -394,15 +443,20 @@ def find_perks(args):
         if result is not None:
             ranked.append(result)
 
-    ranked.sort(
-        key=lambda item: (
-            item["match_score"]
-        ),
-        reverse=True,
+    ranked.sort(key=ranking_key)
+
+    recommended = select_recommendation(
+        ranked
     )
 
     return {
-        "results": ranked,
+        "results": [
+            public_result(item)
+            for item in ranked
+        ],
+        "recommended": public_result(
+            recommended
+        ),
         "total_matches": len(ranked),
         "catalog_size": len(perks),
         "generated_on": (

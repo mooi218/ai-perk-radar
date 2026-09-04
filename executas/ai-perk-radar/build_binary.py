@@ -160,11 +160,44 @@ if system == "darwin":
         check=False,
     )
 
-# Verify protocol before packaging.
-request = (
-    '{"jsonrpc":"2.0",'
-    '"method":"describe","id":1}\n'
-)
+# Verify describe, ranking, and UTF-8 catalog data before packaging.
+review_profile = {
+    "country": "JP",
+    "student": True,
+    "researcher": False,
+    "developer": True,
+    "creator": False,
+    "founder": False,
+    "limited_only": False,
+    "priority": "free",
+    "interests": [
+        "ai",
+        "coding",
+        "cloud",
+    ],
+}
+
+requests = [
+    {
+        "jsonrpc": "2.0",
+        "method": "describe",
+        "id": 1,
+    },
+    {
+        "jsonrpc": "2.0",
+        "method": "invoke",
+        "params": {
+            "tool": "find_perks",
+            "arguments": review_profile,
+        },
+        "id": 2,
+    },
+]
+
+request = "\n".join(
+    json.dumps(item)
+    for item in requests
+) + "\n"
 
 test = subprocess.run(
     [str(binary)],
@@ -181,10 +214,99 @@ if test.returncode != 0:
         "Packaged Executa failed smoke test."
     )
 
-if '"result"' not in test.stdout:
+try:
+    replies = [
+        json.loads(line)
+        for line in test.stdout.splitlines()
+        if line.strip()
+    ]
+except json.JSONDecodeError as error:
+    print(test.stdout)
+    raise RuntimeError(
+        "Packaged Executa returned invalid JSON."
+    ) from error
+
+by_id = {
+    reply.get("id"): reply
+    for reply in replies
+}
+
+if "result" not in by_id.get(1, {}):
     print(test.stdout)
     raise RuntimeError(
         "Describe RPC did not return a result."
+    )
+
+invoke_result = by_id.get(
+    2,
+    {},
+).get("result", {})
+
+if not invoke_result.get("success"):
+    print(test.stdout)
+    raise RuntimeError(
+        "find_perks smoke invoke failed."
+    )
+
+data = invoke_result["data"]
+results = data["results"]
+recommended = data.get("recommended")
+
+recommendable = [
+    item
+    for item in results
+    if item.get("availability") != "check"
+]
+
+if not recommended or (
+    recommended["match_score"]
+    != max(
+        item["match_score"]
+        for item in recommendable
+    )
+):
+    raise RuntimeError(
+        "Recommendation is not a highest-score perk."
+    )
+
+google = next(
+    (
+        item
+        for item in results
+        if item["id"]
+        == "google-ai-plus-student-2026"
+    ),
+    None,
+)
+
+if (
+    google is not None
+    and (
+        recommended["match_score"]
+        <= google["match_score"]
+        or recommended["id"]
+        == google["id"]
+    )
+):
+    raise RuntimeError(
+        "Review regression: Google outranked a higher match."
+    )
+
+codedex = next(
+    item
+    for item in results
+    if item["id"] == "github-pack-codedex"
+)
+
+if (
+    codedex["title"]
+    != "Codédex Club Student"
+    or codedex["provider"] != "Codédex"
+    or "Codédex" not in codedex["value_display"]
+    or "Codédex" not in codedex["why"]
+):
+    raise RuntimeError(
+        "Codédex UTF-8 smoke check failed."
     )
 
 print("Smoke test: OK")

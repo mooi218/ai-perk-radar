@@ -451,8 +451,8 @@
   },
   {
     "id": "github-pack-codedex",
-    "title": "Cod?dex Club Student",
-    "provider": "Cod?dex",
+    "title": "Codédex Club Student",
+    "provider": "Codédex",
     "regions": [
       "GLOBAL"
     ],
@@ -463,12 +463,12 @@
     ],
     "free": true,
     "value_score": 66,
-    "value_display": "6 months of Cod?dex Club",
+    "value_display": "6 months of Codédex Club",
     "deadline": null,
     "announced": null,
     "verified_at": "2026-09-02",
     "source_url": "https://education.github.com/pack/",
-    "reason": "Verified students can receive six months of Cod?dex Club through the GitHub Student Developer Pack.",
+    "reason": "Verified students can receive six months of Codédex Club through the GitHub Student Developer Pack.",
     "last_checked": "2026-09-02",
     "source_quality": "official",
     "availability": "active",

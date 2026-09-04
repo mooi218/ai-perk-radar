@@ -1,5 +1,6 @@
 ai_perk_radar_plugin.py
 pyproject.toml
+tests/test_recommendation.py
 tool_dev_ai_perk_radar.egg-info/PKG-INFO
 tool_dev_ai_perk_radar.egg-info/SOURCES.txt
 tool_dev_ai_perk_radar.egg-info/dependency_links.txt

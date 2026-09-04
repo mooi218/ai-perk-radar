@@ -1,4 +1,5 @@
 import { AnnaAppRuntime } from "/static/anna-apps/_sdk/latest/index.js";
+import { buildRecommendationPrompt } from "./recommendation.mjs";
 
 const EXECUTA_HANDLE = "matcher";
 
@@ -15,6 +16,8 @@ const byId = (id) => document.getElementById(id);
 
 let currentResults = [];
 let currentAiTake = "";
+let currentRecommendation = null;
+let currentAiExplained = false;
 let currentLanguage = "en";
 
 let exclusiveLimit = INITIAL_LIMIT;
@@ -903,7 +906,7 @@ function renderResults() {
     `
     : "";
 
-  const aiCard = currentAiTake
+  const aiCard = currentRecommendation
     ? `
       <article class="perk ai-take">
         <div class="perk-top">
@@ -912,17 +915,24 @@ function renderResults() {
 
             <div class="provider">
               ${escapeHtml(t("personalized"))}
+              ·
+              ${escapeHtml(currentRecommendation.title)}
             </div>
           </div>
 
-          <div class="score">AI</div>
+          <div class="score">
+            ${escapeHtml(currentRecommendation.match_score)}% match
+          </div>
         </div>
 
         <p
           class="why"
           style="margin-top:16px"
         >
-          ${escapeHtml(currentAiTake)}
+          ${escapeHtml(
+            currentAiTake ||
+            localizedReason(currentRecommendation)
+          )}
         </p>
       </article>
     `
@@ -1021,67 +1031,6 @@ function extractLlmText(reply) {
   return "";
 }
 
-function buildAiPrompt(
-  profile,
-  results
-) {
-  const exclusive = results.filter(
-    (item) =>
-      item.offer_type !== "free_tier" &&
-      item.availability !== "check"
-  );
-
-  const candidates =
-    exclusive.length
-      ? exclusive.slice(0, 8)
-      : results
-          .filter(
-            (item) =>
-              item.availability
-              !== "check"
-          )
-          .slice(0, 8);
-
-  const compact = candidates.map(
-    (item) => ({
-      title: item.title,
-      provider: item.provider,
-      match_score: item.match_score,
-      type: item.offer_type,
-      value: item.value_display,
-      deadline:
-        item.deadline_display,
-      caution: item.caution,
-      verified_reason: item.why,
-    })
-  );
-
-  const outputLanguage =
-    currentLanguage === "ja"
-      ? "Japanese"
-      : "English";
-
-  return `
-User profile:
-${JSON.stringify(profile)}
-
-Verified opportunities:
-${JSON.stringify(compact)}
-
-Choose the single opportunity this user should look at first.
-
-Rules:
-- Use ONLY the verified opportunities above.
-- Prefer exclusive benefits over ordinary free tiers when appropriate.
-- Do not recommend offers marked as uncertain availability.
-- Never invent eligibility, prices, deadlines or benefits.
-- Mention the opportunity by name.
-- Explain why in 2 short sentences.
-- Write the answer in ${outputLanguage}.
-- Do not use markdown bullets.
-`.trim();
-}
-
 async function main() {
   const status = byId("status");
   const button = byId("find-btn");
@@ -1113,6 +1062,15 @@ async function main() {
           ? "ja"
           : "en";
 
+      if (
+        currentRecommendation &&
+        !currentAiExplained
+      ) {
+        currentAiTake = localizedReason(
+          currentRecommendation
+        );
+      }
+
       setStaticText();
 
       if (!button.disabled) {
@@ -1138,6 +1096,8 @@ async function main() {
         INITIAL_LIMIT;
 
       currentAiTake = "";
+      currentRecommendation = null;
+      currentAiExplained = false;
 
       status.textContent =
         t("scanning");
@@ -1156,9 +1116,18 @@ async function main() {
         currentResults =
           payload?.results ?? [];
 
+        currentRecommendation =
+          payload?.recommended ?? null;
+
+        if (currentRecommendation) {
+          currentAiTake = localizedReason(
+            currentRecommendation
+          );
+        }
+
         renderResults();
 
-        if (currentResults.length) {
+        if (currentRecommendation) {
           status.textContent =
             t("comparing");
 
@@ -1166,16 +1135,19 @@ async function main() {
             const reply =
               await anna.llm.complete({
                 systemPrompt:
-                  "You are the recommendation layer of AI Perk Radar. Be concise, factual and cautious. Never invent offers.",
+                  "Explain the recommendation already selected by AI Perk Radar's matching engine. Do not select, rank, compare, or name another opportunity. Be concise, factual, and cautious.",
 
                 messages: [
                   {
                     role: "user",
                     content: {
                       type: "text",
-                      text: buildAiPrompt(
+                      text: buildRecommendationPrompt(
                         profile,
-                        currentResults
+                        currentRecommendation,
+                        currentLanguage === "ja"
+                          ? "Japanese"
+                          : "English"
                       ),
                     },
                   },
@@ -1185,8 +1157,13 @@ async function main() {
                 temperature: 0.2,
               });
 
-            currentAiTake =
+            const explanation =
               extractLlmText(reply);
+
+            if (explanation) {
+              currentAiTake = explanation;
+              currentAiExplained = true;
+            }
 
           } catch (error) {
             console.warn(
@@ -1205,7 +1182,7 @@ async function main() {
         });
 
         status.textContent =
-          currentAiTake
+          currentAiExplained
             ? t("aiReady")
             : t("updated");
 

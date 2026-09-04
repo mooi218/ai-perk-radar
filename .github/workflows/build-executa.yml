@@ -37,6 +37,12 @@ jobs:
       - name: Install PyInstaller
         run: python -m pip install --upgrade pip pyinstaller
 
+      - name: Run matcher regression tests
+        run: python -m unittest discover -s executas/ai-perk-radar/tests -v
+
+      - name: Run UI recommendation test
+        run: node --test tests/test_ui_recommendation.mjs
+
       - name: Build Executa
         env:
           ANNA_RUNTIME_TOOL_ID: tool-chiku-ai-perk-radar-matcher-68rpuryp

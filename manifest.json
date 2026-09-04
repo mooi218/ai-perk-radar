@@ -2,7 +2,6 @@
   "schema": 2,
   "permissions": [
     "tools.invoke",
-    "storage.read",
     "storage.write",
     "llm.complete"
   ],
@@ -41,16 +40,21 @@
         "required:bundled:matcher"
       ],
       "storage": [
-        "get",
         "set"
       ],
       "window": [
-        "set_title",
-        "ready"
+        "set_title"
       ],
       "llm": [
         "complete"
-      ]
+      ],
+      "agent": {
+        "session": {
+          "auto": false,
+          "fixed": null
+        },
+        "tools": []
+      }
     },
     "csp_overrides": {},
     "state_merge": "last_writer_wins"
