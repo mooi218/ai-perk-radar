@@ -46,3 +46,17 @@ See [catalog maintenance](CATALOG_MAINTENANCE.md) for the human review cadence a
 - Fetch tests verify the fixed endpoint, per-search refresh, no credentials/profile leakage, timeout, strict UTF-8, media type/size limits, and no stale fallback.
 - Schema tests cover malformed data, unsupported schemas, duplicate properties/IDs, unsafe links, and empty catalogs.
 - Prior score-ordering, tie-break, uncertain-availability, Codédex encoding, and explanation-only LLM regressions remain covered.
+
+## Live verification on Anna
+
+The installed App v0.1.6 (version ID 706), with matcher v0.1.6 (Executa version ID 468), was tested against the live public endpoint. It returned 24 matches and selected AWS Student Rewards at 99%, ahead of Google AI Plus at 86% for the test profile.
+
+With the same app window and binary still running, a catalog-only commit [74b08fa](https://github.com/mooi218/ai-perk-radar/commit/74b08fa) advanced the data revision from `2026-09-11.1` to `2026-09-11.2`. It recorded a fresh check of the Codédex offer on the official GitHub Education page and clarified the student-verification requirement in English and Japanese. The next **Find my perks** click received revision `.2`, displayed both updated cautions and the new source-review date, without an App push, cut, reload, reinstall, or binary build.
+
+[Build run 34495252461](https://github.com/mooi218/ai-perk-radar/actions/runs/34495252461) passed all four OS builds and packaged-process tests from code commit `03f84f8`. Subsequent catalog edits use only the independent data-validation workflow.
+
+## Existing Anna installation observations
+
+During the initial code upgrade, Anna reported the App installed at v0.1.6 while the Cloud Agent still ran matcher v0.1.5 (`agent_version`). Updating this single plugin with Anna's existing **Upgrade plugin** operation loaded v0.1.6 and resolved the mismatch. A reviewer reusing an old installation should verify the running matcher version; this is only needed for the code upgrade, not subsequent catalog updates.
+
+Anna's install operation also reinitialized stored Agent grants to `auto: true` / `fixed: true`, despite both being disabled in the App manifest. The unused grants were normalized to false, with empty allowed tools and inheritance disabled, for this test installation. The App does not request these grants; preserving that alignment on reinstall requires a correction in Anna's installation/grant handling.
