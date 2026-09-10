@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": "2026-09-11.2",
-  "published_at": "2026-09-10T15:50:24Z",
+  "revision": "2026-09-11.3",
+  "published_at": "2026-09-10T16:21:08Z",
   "opportunities": [
     {
       "id": "google-ai-plus-student-2026",
@@ -21,19 +21,20 @@
       "value_display": "About JPY 8,700",
       "deadline": "2026-12-31",
       "announced": "2026-08-20",
-      "verified_at": "2026-09-02",
+      "verified_at": "2026-09-10",
       "source_url": "https://blog.google/intl/ja-jp/company-news/technology/gemini-student-offer-google-ai/",
       "reason": "Eligible higher-education students in Japan can receive Google AI Plus for 12 months at no charge. The offer includes higher Gemini limits and 400 GB of storage.",
-      "last_checked": "2026-09-02",
+      "last_checked": "2026-09-10",
       "source_quality": "official",
       "availability": "active",
-      "caution": "",
+      "caution": "A valid payment method is required. After 12 months, the standard monthly price applies automatically unless you cancel. Country and student eligibility restrictions apply.",
       "parent_id": null,
       "offer_type": "student_perk",
       "localizations": {
         "ja": {
           "value_display": "Google AI Plusを12か月無料",
-          "reason": "日本の対象高等教育機関の学生向け特典です。Google AI Plusを12か月無料で利用でき、Geminiの利用上限拡大や400GBのストレージが含まれます。"
+          "reason": "日本の対象高等教育機関の学生向け特典です。Google AI Plusを12か月無料で利用でき、Geminiの利用上限拡大や400GBのストレージが含まれます。",
+          "caution": "支払い方法の登録が必要です。12か月後は解約しない限り通常の月額料金で自動更新されます。対象国・地域と学生資格の条件を確認してください。"
         }
       }
     },
@@ -56,19 +57,20 @@
       "value_display": "Up to about USD 579",
       "deadline": null,
       "announced": "2026-08-20",
-      "verified_at": "2026-09-02",
+      "verified_at": "2026-09-10",
       "source_url": "https://builder.aws.com/content/3I1qkUtKhwU6K1VaGkfYRwtbz3o/introducing-student-rewards-on-aws-builder-center",
       "reason": "Verified higher-education students worldwide can unlock 12 months of AWS Skill Builder Premium. Additional badges can unlock AWS credits and a certification exam voucher.",
-      "last_checked": "2026-09-02",
+      "last_checked": "2026-09-10",
       "source_quality": "official",
       "availability": "active",
-      "caution": "",
+      "caution": "Enrollment verification and a completed Builder Center profile are required. Credits and the exam voucher require additional community badges.",
       "parent_id": null,
       "offer_type": "student_perk",
       "localizations": {
         "ja": {
           "value_display": "最大約579米ドル相当",
-          "reason": "認証済みの大学生はAWS Skill Builder Premiumを12か月利用できます。追加バッジの獲得でAWSクレジットや資格試験バウチャーも解放できます。"
+          "reason": "認証済みの大学生はAWS Skill Builder Premiumを12か月利用できます。追加バッジの獲得でAWSクレジットや資格試験バウチャーも解放できます。",
+          "caution": "在籍確認とBuilder Centerプロフィールの完成が必要です。クレジットや試験バウチャーの獲得には追加のコミュニティバッジが必要です。"
         }
       }
     },
@@ -125,19 +127,20 @@
       "value_display": "Standard seats free for 12 months",
       "deadline": null,
       "announced": "2026-08-27",
-      "verified_at": "2026-09-02",
+      "verified_at": "2026-09-10",
       "source_url": "https://www.anthropic.com/news/expanding-support-for-scientists",
       "reason": "Anthropic opened an initial 10,000 seats for scientists worldwide. Standard Claude Team seats are free for one year, with discounted premium seats also available.",
-      "last_checked": "2026-09-02",
+      "last_checked": "2026-09-10",
       "source_quality": "official",
       "availability": "active",
-      "caution": "",
+      "caution": "The applicant must be a principal investigator or equivalent at an academic or nonprofit research institution; verified applicants can invite their lab. Initial enrollment is limited.",
       "parent_id": null,
       "offer_type": "research_perk",
       "localizations": {
         "ja": {
           "value_display": "Claude Team標準シートを12か月無料",
-          "reason": "研究者向けにClaude Teamの標準シートを1年間無料で提供するプログラムです。初期枠には人数制限があります。"
+          "reason": "研究者向けにClaude Teamの標準シートを1年間無料で提供するプログラムです。初期枠には人数制限があります。",
+          "caution": "申請者は大学・非営利研究機関の研究代表者または同等の立場である必要があります。認証後に研究室のメンバーを招待できます。初期の募集枠には上限があります。"
         }
       }
     },
@@ -159,20 +162,20 @@
       "value_display": "Free Copilot access for verified students",
       "deadline": null,
       "announced": null,
-      "verified_at": "2026-09-02",
+      "verified_at": "2026-09-10",
       "source_url": "https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/enable-copilot/set-up-for-students",
-      "reason": "Verified students on GitHub Education can access GitHub Copilot Student for free. Eligibility is periodically rechecked by GitHub.",
-      "last_checked": "2026-09-02",
+      "reason": "Verified GitHub Education students can activate Copilot Student at no charge. GitHub checks student eligibility each month.",
+      "last_checked": "2026-09-10",
       "source_quality": "official",
-      "availability": "check",
-      "caution": "GitHub Docs says verified students can access Copilot Student for free, but the current Student Developer Pack page says new plan sign-ups are temporarily paused. Check current activation availability before relying on this offer.",
+      "availability": "active",
+      "caution": "Education approval and Copilot activation are separate. Activation may take several days; if only paid options appear, wait and contact GitHub Support rather than completing a purchase.",
       "parent_id": "github-student-developer-pack",
       "offer_type": "student_perk",
       "localizations": {
         "ja": {
           "value_display": "認証済み学生はGitHub Copilotを無料利用",
-          "reason": "GitHub Educationで認証された学生向けのCopilot特典です。利用開始可否は現在のGitHubの受付状況を確認してください。",
-          "caution": "GitHub Docsでは学生向け無料利用が案内されていますが、新規申込みが一時停止される場合があるため、申込み前に最新状況を確認してください。"
+          "reason": "GitHub Educationで認証済みの学生はCopilot Studentを無料で有効化できます。学生資格は毎月再確認されます。",
+          "caution": "学生認証とCopilotの有効化は別の手順です。反映に数日かかる場合があります。有料プランしか出ないときは購入せず、時間を置くかGitHubサポートに確認してください。"
         }
       }
     },
@@ -862,6 +865,711 @@
           "value_display": "サーバーレスPostgresの無料枠",
           "reason": "Neon FreeでPostgres、コンピュート、ストレージ、ブランチ機能などの無料枠を利用できます。",
           "caution": "無料枠の上限は変更されることがあるため、利用前に公式の最新プラン内容を確認してください。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-datacamp",
+      "title": "DataCamp Student Access",
+      "provider": "DataCamp",
+      "interests": [
+        "ai",
+        "coding",
+        "research"
+      ],
+      "value_score": 70,
+      "value_display": "3 months of learning access",
+      "reason": "Verified students receive three months of DataCamp access through GitHub Education.",
+      "caution": "Review subscription and renewal terms before activating.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "学習コンテンツを3か月利用",
+          "reason": "GitHub Educationの認証済み学生はDataCampを3か月利用できます。",
+          "caution": "有効化前にサブスクリプションと更新条件を確認してください。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-educative",
+      "title": "Educative Student Access",
+      "provider": "Educative",
+      "interests": [
+        "ai",
+        "coding"
+      ],
+      "value_score": 70,
+      "value_display": "6 months of selected courses",
+      "reason": "Six months of access to more than 70 selected Educative courses are included in the student offer.",
+      "caution": "The free offer covers selected courses, not every paid subscription.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "対象講座を6か月利用",
+          "reason": "学生特典でEducativeの70以上の対象講座を6か月利用できます。",
+          "caution": "無料の対象は指定講座です。すべての有料プランが無料になるわけではありません。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-frontendmasters",
+      "title": "Frontend Masters Student Access",
+      "provider": "Frontend Masters",
+      "interests": [
+        "coding"
+      ],
+      "value_score": 72,
+      "value_display": "6 months of courses and workshops",
+      "reason": "The student offer includes six months of Frontend Masters courses and workshops.",
+      "caution": "Student verification and partner redemption are required.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "講座・ワークショップを6か月利用",
+          "reason": "学生特典でFrontend Mastersの講座とワークショップを6か月利用できます。",
+          "caution": "学生認証とパートナー側での特典有効化が必要です。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-bootdev",
+      "title": "Boot.dev Student Membership",
+      "provider": "Boot.dev",
+      "interests": [
+        "coding",
+        "cloud"
+      ],
+      "value_score": 68,
+      "value_display": "3 months of interactive membership",
+      "reason": "Eligible students receive three months of Boot.dev's interactive learning membership.",
+      "caution": "Activate through the GitHub Student Developer Pack.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "インタラクティブ学習を3か月利用",
+          "reason": "対象学生はBoot.devのインタラクティブ学習会員機能を3か月利用できます。",
+          "caution": "GitHub Student Developer Packから有効化してください。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-appwrite",
+      "title": "Appwrite Education",
+      "provider": "Appwrite",
+      "interests": [
+        "coding",
+        "cloud"
+      ],
+      "value_score": 78,
+      "value_display": "2 projects with Pro-equivalent limits",
+      "reason": "Appwrite Education includes two projects with Pro-equivalent resource limits while student eligibility continues.",
+      "caution": "Requires continued GitHub Student Developer Pack eligibility.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "Pro相当の上限で2プロジェクト",
+          "reason": "Appwrite Educationでは学生資格がある間、Pro相当のリソース上限で2プロジェクトを利用できます。",
+          "caution": "GitHub Student Developer Packの対象であることが必要です。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-mongodb",
+      "title": "MongoDB Atlas Student Credits",
+      "provider": "MongoDB",
+      "interests": [
+        "coding",
+        "cloud",
+        "ai"
+      ],
+      "value_score": 72,
+      "value_display": "USD 50 Atlas credit",
+      "reason": "The student offer includes USD 50 in MongoDB Atlas credits.",
+      "caution": "Check credit expiry and billing before exceeding the credited allowance.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "Atlasクレジット50米ドル",
+          "reason": "学生特典としてMongoDB Atlasの50米ドル分のクレジットを利用できます。",
+          "caution": "クレジットの期限と、残高を超えた場合の課金条件を確認してください。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-datadog",
+      "title": "Datadog Student Pro",
+      "provider": "Datadog",
+      "interests": [
+        "coding",
+        "cloud"
+      ],
+      "value_score": 76,
+      "value_display": "Pro for 10 servers, 2 years",
+      "reason": "The student offer includes a Datadog Pro account covering ten servers for two years.",
+      "caution": "Additional products or resources can have separate charges.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "10サーバー分のProを2年間",
+          "reason": "学生特典で10サーバーを対象としたDatadog Proアカウントを2年間利用できます。",
+          "caution": "追加製品や特典上限を超えるリソースには別料金が発生する場合があります。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-namecheap",
+      "title": "Namecheap Student Domain and SSL",
+      "provider": "Namecheap",
+      "interests": [
+        "coding",
+        "creator"
+      ],
+      "value_score": 62,
+      "value_display": "1 year of .me domain and SSL",
+      "reason": "Eligible students can redeem one year of .me domain registration and an SSL certificate.",
+      "caution": "Renewals after the first year are not included.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": ".meドメインとSSLを1年間",
+          "reason": "対象学生は.meドメイン登録とSSL証明書を1年間利用できます。",
+          "caution": "初年度の特典です。翌年以降の更新は無料特典に含まれません。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-gitkraken",
+      "title": "GitKraken Student Plan",
+      "provider": "GitKraken",
+      "interests": [
+        "coding"
+      ],
+      "value_score": 65,
+      "value_display": "6 months free",
+      "reason": "The GitKraken Student Plan is free for six months.",
+      "caution": "After six months the offer becomes a student discount, not continued free access.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "学生プランを6か月無料",
+          "reason": "GitKrakenの学生プランを6か月無料で利用できます。",
+          "caution": "6か月後は学生割引となり、無料利用がそのまま継続するわけではありません。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": true,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-pack-clerk",
+      "title": "Clerk Student Pro",
+      "provider": "Clerk",
+      "interests": [
+        "coding",
+        "cloud"
+      ],
+      "value_score": 73,
+      "value_display": "Pro while you are a student",
+      "reason": "The GitHub student offer includes Clerk Pro while student eligibility continues.",
+      "caution": "Student verification and partner usage limits apply.",
+      "offer_type": "student_perk",
+      "source_url": "https://education.github.com/pack/",
+      "parent_id": "github-student-developer-pack",
+      "localizations": {
+        "ja": {
+          "value_display": "学生の間はProを利用",
+          "reason": "GitHubの学生特典として、学生資格がある間Clerk Proを利用できます。",
+          "caution": "学生認証が必要です。パートナー側の利用上限も確認してください。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "vercel-hobby",
+      "title": "Vercel Hobby",
+      "provider": "Vercel",
+      "interests": [
+        "coding",
+        "cloud"
+      ],
+      "value_score": 63,
+      "value_display": "Free personal project hosting",
+      "reason": "Vercel Hobby supports personal, non-commercial web projects with included deployment and function quotas.",
+      "caution": "Commercial use is excluded. Hitting limits can require waiting for quota renewal.",
+      "offer_type": "free_tier",
+      "source_url": "https://vercel.com/docs/plans/hobby",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "個人プロジェクト向け無料ホスティング",
+          "reason": "Vercel Hobbyで個人・非商用のWebプロジェクトを無料枠内で公開できます。",
+          "caution": "商用利用は対象外です。上限に達すると枠の回復を待つ必要がある場合があります。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "google-colab-free",
+      "title": "Google Colab Free",
+      "provider": "Google",
+      "interests": [
+        "ai",
+        "coding",
+        "research"
+      ],
+      "value_score": 74,
+      "value_display": "Free hosted notebooks",
+      "reason": "Colab provides free hosted notebooks and access to available computing resources for learning and experimentation.",
+      "caution": "GPU/TPU availability, runtime length, and usage limits are variable and not guaranteed.",
+      "offer_type": "free_tier",
+      "source_url": "https://research.google.com/colaboratory/faq.html",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "ホスト型ノートブックの無料利用",
+          "reason": "Colabで学習や実験向けのノートブックと、利用可能な計算リソースを無料で使えます。",
+          "caution": "GPU・TPUの提供、実行時間、利用上限は変動し、保証されません。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "huggingface-static-spaces",
+      "title": "Hugging Face Static Spaces",
+      "provider": "Hugging Face",
+      "interests": [
+        "ai",
+        "coding",
+        "creator"
+      ],
+      "value_score": 56,
+      "value_display": "Free static Space hosting",
+      "reason": "Static Spaces let accounts publish static HTML and JavaScript demos without a paid plan.",
+      "caution": "This offer is for static hosting. Creating compute-backed Gradio or Docker Spaces requires a paid plan.",
+      "offer_type": "free_tier",
+      "source_url": "https://huggingface.co/docs/hub/spaces-overview",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "静的デモを無料で公開",
+          "reason": "Static Spacesでは有料プランなしでHTML・JavaScriptの静的デモを公開できます。",
+          "caution": "静的ホスティングが対象です。計算処理を伴うGradio・Docker Spacesの新規作成には有料プランが必要です。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "qdrant-cloud-free",
+      "title": "Qdrant Cloud Free",
+      "provider": "Qdrant",
+      "interests": [
+        "ai",
+        "coding",
+        "cloud"
+      ],
+      "value_score": 70,
+      "value_display": "1 GB RAM / 4 GB disk vector database",
+      "reason": "The free single-node cluster supports vector-search prototypes without a credit card.",
+      "caution": "Free clusters suspend after one inactive week and are deleted after four inactive weeks unless reactivated.",
+      "offer_type": "free_tier",
+      "source_url": "https://qdrant.tech/documentation/cloud/create-cluster/",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "RAM 1GB・ディスク4GBのベクトルDB",
+          "reason": "クレジットカード不要の無料シングルノード環境で、ベクトル検索を試作できます。",
+          "caution": "1週間利用がないと休止し、再開せず4週間経過すると削除されます。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "resend-free",
+      "title": "Resend Free",
+      "provider": "Resend",
+      "interests": [
+        "coding",
+        "cloud"
+      ],
+      "value_score": 64,
+      "value_display": "3,000 transactional emails/month",
+      "reason": "The free transactional email plan includes a monthly allowance of 3,000 emails.",
+      "caution": "A 100-email daily limit also applies. Sent and received messages both consume quota.",
+      "offer_type": "free_tier",
+      "source_url": "https://resend.com/docs/knowledge-base/account-quotas-and-limits",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "月3,000通のトランザクションメール",
+          "reason": "無料プランでトランザクションメールを月3,000通まで利用できます。",
+          "caution": "1日100通の上限もあります。送信・受信の両方が利用枠に計上されます。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "posthog-free",
+      "title": "PostHog Free",
+      "provider": "PostHog",
+      "interests": [
+        "coding",
+        "cloud",
+        "ai"
+      ],
+      "value_score": 73,
+      "value_display": "1M analytics events/month",
+      "reason": "PostHog includes monthly free allowances for product analytics and other tools without a credit card.",
+      "caution": "Free usage stops at the allowance. Adding a card enables paid usage and optional features.",
+      "offer_type": "free_tier",
+      "source_url": "https://posthog.com/pricing",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "月100万件の分析イベント",
+          "reason": "クレジットカード不要で、プロダクト分析などの月次無料枠を利用できます。",
+          "caution": "無料利用は上限で停止します。カード登録後の追加利用やオプションには課金が発生します。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "streamlit-community-cloud",
+      "title": "Streamlit Community Cloud",
+      "provider": "Streamlit",
+      "interests": [
+        "ai",
+        "coding",
+        "research"
+      ],
+      "value_score": 66,
+      "value_display": "Free Streamlit app deployment",
+      "reason": "Community Cloud hosts Streamlit apps connected to GitHub repositories at no charge.",
+      "caution": "Intended for community, personal, and educational apps; resource limits apply.",
+      "offer_type": "free_tier",
+      "source_url": "https://docs.streamlit.io/deploy/streamlit-community-cloud",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "Streamlitアプリを無料公開",
+          "reason": "GitHubリポジトリと連携して、Streamlitアプリを無料で公開できます。",
+          "caution": "コミュニティ・個人・教育向けの環境です。リソースには上限があります。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "cloudinary-free",
+      "title": "Cloudinary Free",
+      "provider": "Cloudinary",
+      "interests": [
+        "coding",
+        "creator"
+      ],
+      "value_score": 64,
+      "value_display": "25 monthly media credits",
+      "reason": "Cloudinary's Free plan includes 25 credits for media transformations, storage, and delivery.",
+      "caution": "Credits are shared across resource types, not separate 25-credit allowances for each.",
+      "offer_type": "free_tier",
+      "source_url": "https://cloudinary.com/documentation/billing_and_plans",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "メディア処理を月25クレジット",
+          "reason": "Cloudinaryの無料プランでは、変換・保存・配信に使う月25クレジットを利用できます。",
+          "caution": "クレジットは各用途で共有します。用途ごとに25クレジットずつ付くわけではありません。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "upstash-redis-free",
+      "title": "Upstash Redis Free",
+      "provider": "Upstash",
+      "interests": [
+        "coding",
+        "cloud"
+      ],
+      "value_score": 65,
+      "value_display": "256 MB / 500K commands per month",
+      "reason": "The free Redis tier provides 256 MB of data and 500,000 monthly commands.",
+      "caution": "Free-tier allowances do not carry over as free usage after upgrading to a paid tier.",
+      "offer_type": "free_tier",
+      "source_url": "https://upstash.com/pricing/redis",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "256MB・月50万コマンド",
+          "reason": "Redis無料枠で256MBのデータと月50万コマンドを利用できます。",
+          "caution": "有料プランへ変更した後も同じ枠が無料で付くわけではありません。"
+        }
+      }
+    },
+    {
+      "regions": [
+        "GLOBAL"
+      ],
+      "student_required": false,
+      "researcher_required": false,
+      "free": true,
+      "deadline": null,
+      "announced": null,
+      "verified_at": "2026-09-10",
+      "last_checked": "2026-09-10",
+      "source_quality": "official",
+      "availability": "active",
+      "id": "github-codespaces-free",
+      "title": "GitHub Codespaces Personal Free",
+      "provider": "GitHub",
+      "interests": [
+        "coding",
+        "cloud"
+      ],
+      "value_score": 68,
+      "value_display": "120 core-hours / 15 GB-month",
+      "reason": "GitHub Free personal accounts include a monthly Codespaces compute and storage allowance.",
+      "caution": "120 core-hours means about 60 hours on a 2-core machine. Usage above quota can be billed if payment is enabled.",
+      "offer_type": "free_tier",
+      "source_url": "https://docs.github.com/en/billing/concepts/product-billing/github-codespaces",
+      "parent_id": null,
+      "localizations": {
+        "ja": {
+          "value_display": "月120コア時間・15GB月",
+          "reason": "GitHub Freeの個人アカウントにはCodespacesの月次計算・ストレージ枠が含まれます。",
+          "caution": "120コア時間は2コア環境で約60時間です。支払いを有効にしている場合、超過分が課金されます。"
         }
       }
     }
