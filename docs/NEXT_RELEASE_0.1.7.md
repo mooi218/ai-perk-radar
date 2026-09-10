@@ -1,6 +1,6 @@
-# v0.1.7 working draft
+# v0.1.7 review candidate
 
-This draft builds on v0.1.6's independent JSON delivery. The v0.1.6 review candidate is preserved; this draft is not a newly submitted or publicly released App version.
+Version 0.1.7 builds on v0.1.6's independent JSON delivery. Following the user's authorization, the tested draft was cut as App version ID 707 and resubmitted on September 11, 2026 (JST). Anna accepted the resubmission while the previous review was pending and now identifies v0.1.7 as the review candidate. It is not yet approved or publicly released.
 
 ## Product changes
 
@@ -41,7 +41,7 @@ The build smoke test now sends unescaped UTF-8 through the packaged executable. 
 - The expanded catalog was accepted by the already-built v0.1.6 executable (45 entries; 44 matches for the student/developer profile; AWS99%).
 - The real bundle was tested in a local Anna-API harness with actual matching and public JSON fetching: save/reload/language restoration, a profile change producing 26 newly matching student offers, seeded New/Changed/For-you scenarios, and 420px layout without horizontal overflow. Local harness storage/LLM responses are test substitutes, not proof of a production LLM completion.
 
-Before releasing this draft after the current review, confirm the intended App/Executa versions and run the normal Anna install/upgrade verification described in the v0.1.6 notes.
+The candidate freezes Executa v0.1.7 (version ID 469) and the six-file UI bundle verified below. Existing test installations should use the normal Anna install/upgrade verification described in the v0.1.6 notes.
 
 ## Anna working-draft verification
 
@@ -51,4 +51,4 @@ The working App draft (revision 8, six UI files) was installed in the developer'
 
 On-demand Anna explanations were verified in both English and Japanese, with AWS Student Rewards remaining the 99% selected recommendation. Small output budgets sometimes returned a valid response envelope with no displayable text; a 2,048-token cap successfully produced the requested short explanation in this environment. Empty/error replies still retain the deterministic reason and show a retry notice. Diagnostic logs contain response field names/status/usage only, not profile data or generated text.
 
-No App v0.1.7 cut or review submission was made. The existing App v0.1.6 review candidate remains in place, while the developer can use the working draft for further testing.
+After testing, App v0.1.7 was cut and resubmitted using the official CLI. The server response confirmed `pending_review` with `review_candidate_version: 0.1.7`. No public release action was performed.

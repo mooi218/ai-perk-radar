@@ -32,8 +32,8 @@ For a catalog-only update, edit `executas/ai-perk-radar/ai_perk_radar/opportunit
 
 See [Catalog maintenance](docs/CATALOG_MAINTENANCE.md) for the verification cadence, change states, expiry handling, and product differentiation. [v0.1.6 review notes](docs/REVIEW_NOTES_0.1.6.md) explain the complete update flow and its security boundary. [v0.1.5 review notes](docs/REVIEW_NOTES_0.1.5.md) cover the earlier fixes.
 
-## Next version: v0.1.7 draft
+## Review candidate: v0.1.7
 
 The next UI adds saved perks, profile/language restoration, search and combined filters, and views for New since last visit, Changed, Expiring soon, and Newly for you. Visit metadata and saved labels use Anna's private per-user App storage; current offer terms are always fetched again. Anna's optional explanation is requested with a button, while deterministic matching returns immediately.
 
-The matcher also fixes Windows UTF-8 input handling and keeps running after malformed JSON-RPC requests. See [next-release notes](docs/NEXT_RELEASE_0.1.7.md). The existing review candidate remains v0.1.6; this source tree and working draft prepare the next release without replacing that review.
+The matcher also fixes Windows UTF-8 input handling and keeps running after malformed JSON-RPC requests. See [review notes](docs/NEXT_RELEASE_0.1.7.md). Version 0.1.7 has been cut and resubmitted; Anna now lists it as the pending review candidate. It has not been publicly released yet.
