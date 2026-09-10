@@ -24,6 +24,7 @@ REVIEW_PROFILE = {
         "coding",
         "cloud",
     ],
+    "catalog_json": (EXECUTA_ROOT / "ai_perk_radar" / "opportunities.json").read_text(encoding="utf-8"),
 }
 
 
@@ -156,7 +157,7 @@ class CatalogEncodingTests(unittest.TestCase):
         self.assertNotIn("Cod?dex", text)
         self.assertNotIn("\ufffd", text)
 
-        catalog = json.loads(text)
+        catalog = json.loads(text)["opportunities"]
         codedex = next(
             item
             for item in catalog

@@ -1,5 +1,6 @@
 import { AnnaAppRuntime } from "/static/anna-apps/_sdk/latest/index.js";
 import { buildRecommendationPrompt } from "./recommendation.mjs";
+import { fetchCatalog, localizedField } from "./catalog.mjs";
 
 const EXECUTA_HANDLE = "matcher";
 
@@ -19,6 +20,9 @@ let currentAiTake = "";
 let currentRecommendation = null;
 let currentAiExplained = false;
 let currentLanguage = "en";
+let currentCatalog = null;
+let currentError = false;
+let scanning = false;
 
 let exclusiveLimit = INITIAL_LIMIT;
 let freeLimit = INITIAL_LIMIT;
@@ -57,7 +61,7 @@ const TEXT = {
 
     ready: "Ready.",
     scanning: "Scanning current opportunities...",
-    comparing: "Anna is comparing your best matches...",
+    comparing: "Anna is explaining your top match...",
     aiReady: "AI recommendation ready.",
     updated: "Matches updated.",
 
@@ -93,7 +97,8 @@ const TEXT = {
     official: "Open official source",
 
     lastChecked: "Last checked",
-    catalogChecked: "Catalog last checked",
+    catalogChecked: "Catalog refreshed",
+    catalogUnavailable: "The latest catalog could not be loaded. Check your connection and try Find my perks again.",
 
     showMore: "Show more",
     showLess: "Show less",
@@ -137,7 +142,7 @@ const TEXT = {
 
     ready: "\u6e96\u5099\u5b8c\u4e86",
     scanning: "\u5229\u7528\u3067\u304d\u308b\u7279\u5178\u3092\u691c\u7d22\u4e2d...",
-    comparing: "Anna\u304c\u5019\u88dc\u3092\u6bd4\u8f03\u3057\u3066\u3044\u307e\u3059...",
+    comparing: "Annaが最上位の特典を説明しています...",
     aiReady: "AI\u306e\u304a\u3059\u3059\u3081\u3092\u66f4\u65b0\u3057\u307e\u3057\u305f\u3002",
     updated: "\u691c\u7d22\u7d50\u679c\u3092\u66f4\u65b0\u3057\u307e\u3057\u305f\u3002",
 
@@ -173,7 +178,8 @@ const TEXT = {
     official: "\u516c\u5f0f\u60c5\u5831\u3092\u898b\u308b",
 
     lastChecked: "\u6700\u7d42\u78ba\u8a8d",
-    catalogChecked: "\u30c7\u30fc\u30bf\u6700\u7d42\u78ba\u8a8d",
+    catalogChecked: "最新カタログ取得",
+    catalogUnavailable: "最新カタログを取得できませんでした。通信を確認して「使える特典を探す」を押してください。",
 
     showMore: "\u3082\u3063\u3068\u898b\u308b",
     showLess: "\u9589\u3058\u308b",
@@ -186,141 +192,7 @@ const TEXT = {
 };
 
 
-const JA_DETAIL = {
-  "google-ai-plus-student-2026": {
-    value: "Google AI Plus\u309212\u304b\u6708\u7121\u6599",
-    reason: "\u65e5\u672c\u306e\u5bfe\u8c61\u9ad8\u7b49\u6559\u80b2\u6a5f\u95a2\u306e\u5b66\u751f\u5411\u3051\u7279\u5178\u3067\u3059\u3002Google AI Plus\u309212\u304b\u6708\u7121\u6599\u3067\u5229\u7528\u3067\u304d\u3001Gemini\u306e\u5229\u7528\u4e0a\u9650\u62e1\u5927\u3084400GB\u306e\u30b9\u30c8\u30ec\u30fc\u30b8\u304c\u542b\u307e\u308c\u307e\u3059\u3002"
-  },
 
-  "aws-student-rewards-2026": {
-    value: "\u6700\u5927\u7d04579\u7c73\u30c9\u30eb\u76f8\u5f53",
-    reason: "\u8a8d\u8a3c\u6e08\u307f\u306e\u5927\u5b66\u751f\u306fAWS Skill Builder Premium\u309212\u304b\u6708\u5229\u7528\u3067\u304d\u307e\u3059\u3002\u8ffd\u52a0\u30d0\u30c3\u30b8\u306e\u7372\u5f97\u3067AWS\u30af\u30ec\u30b8\u30c3\u30c8\u3084\u8cc7\u683c\u8a66\u9a13\u30d0\u30a6\u30c1\u30e3\u30fc\u3082\u89e3\u653e\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "zed-student-plan-2026": {
-    value: "Pro 12\u304b\u6708 + \u6bce\u670810\u7c73\u30c9\u30eb\u306eAI\u30af\u30ec\u30b8\u30c3\u30c8",
-    reason: "\u8a8d\u8a3c\u6e08\u307f\u306e\u5927\u5b66\u751f\u306fZed Pro\u30921\u5e74\u9593\u7121\u6599\u3067\u5229\u7528\u3067\u304d\u3001\u6bce\u670810\u7c73\u30c9\u30eb\u5206\u306eAI\u30c8\u30fc\u30af\u30f3\u30af\u30ec\u30b8\u30c3\u30c8\u3082\u542b\u307e\u308c\u307e\u3059\u3002"
-  },
-
-  "anthropic-scientist-team-2026": {
-    value: "Claude Team\u6a19\u6e96\u30b7\u30fc\u30c8\u309212\u304b\u6708\u7121\u6599",
-    reason: "\u7814\u7a76\u8005\u5411\u3051\u306bClaude Team\u306e\u6a19\u6e96\u30b7\u30fc\u30c8\u30921\u5e74\u9593\u7121\u6599\u3067\u63d0\u4f9b\u3059\u308b\u30d7\u30ed\u30b0\u30e9\u30e0\u3067\u3059\u3002\u521d\u671f\u67a0\u306b\u306f\u4eba\u6570\u5236\u9650\u304c\u3042\u308a\u307e\u3059\u3002"
-  },
-
-  "github-copilot-student": {
-    value: "\u8a8d\u8a3c\u6e08\u307f\u5b66\u751f\u306fGitHub Copilot\u3092\u7121\u6599\u5229\u7528",
-    reason: "GitHub Education\u3067\u8a8d\u8a3c\u3055\u308c\u305f\u5b66\u751f\u5411\u3051\u306eCopilot\u7279\u5178\u3067\u3059\u3002\u5229\u7528\u958b\u59cb\u53ef\u5426\u306f\u73fe\u5728\u306eGitHub\u306e\u53d7\u4ed8\u72b6\u6cc1\u3092\u78ba\u8a8d\u3057\u3066\u304f\u3060\u3055\u3044\u3002",
-    caution: "GitHub Docs\u3067\u306f\u5b66\u751f\u5411\u3051\u7121\u6599\u5229\u7528\u304c\u6848\u5185\u3055\u308c\u3066\u3044\u307e\u3059\u304c\u3001\u65b0\u898f\u7533\u8fbc\u307f\u304c\u4e00\u6642\u505c\u6b62\u3055\u308c\u308b\u5834\u5408\u304c\u3042\u308b\u305f\u3081\u3001\u7533\u8fbc\u307f\u524d\u306b\u6700\u65b0\u72b6\u6cc1\u3092\u78ba\u8a8d\u3057\u3066\u304f\u3060\u3055\u3044\u3002"
-  },
-
-  "github-student-developer-pack": {
-    value: "GitHub Pro + \u591a\u6570\u306e\u30d1\u30fc\u30c8\u30ca\u30fc\u7279\u5178",
-    reason: "\u8a8d\u8a3c\u6e08\u307f\u5b66\u751f\u5411\u3051\u306bGitHub Pro\u3001\u958b\u767a\u30c4\u30fc\u30eb\u3001\u30af\u30e9\u30a6\u30c9\u30af\u30ec\u30b8\u30c3\u30c8\u3001\u5b66\u7fd2\u30b5\u30fc\u30d3\u30b9\u306a\u3069\u3092\u307e\u3068\u3081\u3066\u63d0\u4f9b\u3059\u308b\u30d1\u30c3\u30af\u3067\u3059\u3002"
-  },
-
-  "azure-for-students": {
-    value: "100\u7c73\u30c9\u30eb\u306eAzure\u30af\u30ec\u30b8\u30c3\u30c8 + \u7121\u6599\u30b5\u30fc\u30d3\u30b9",
-    reason: "\u5bfe\u8c61\u306e\u5927\u5b66\u751f\u306fAzure\u30af\u30ec\u30b8\u30c3\u30c8100\u7c73\u30c9\u30eb\u5206\u3068\u5bfe\u8c61\u30b5\u30fc\u30d3\u30b9\u306e\u7121\u6599\u67a0\u3092\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "jetbrains-student-pack": {
-    value: "JetBrains IDE\u30fb.NET\u30c4\u30fc\u30eb\u3092\u7121\u6599\u5229\u7528",
-    reason: "\u5b66\u751f\u306fJetBrains\u306eIDE\u3084.NET\u958b\u767a\u30c4\u30fc\u30eb\u306e\u6559\u80b2\u7528\u30e9\u30a4\u30bb\u30f3\u30b9\u3092\u7121\u6599\u3067\u5229\u7528\u3067\u304d\u307e\u3059\u3002",
-    caution: "\u6559\u80b2\u7528\u30e9\u30a4\u30bb\u30f3\u30b9\u306f\u5546\u7528\u76ee\u7684\u306b\u4f7f\u7528\u3067\u304d\u307e\u305b\u3093\u3002"
-  },
-
-  "figma-education": {
-    value: "Professional\u76f8\u5f53\u306e\u6a5f\u80fd\u3092\u7121\u6599\u5229\u7528",
-    reason: "\u5bfe\u8c61\u306e\u5b66\u751f\u306fFigma Education\u3092\u901a\u3058\u3066Professional\u30d7\u30e9\u30f3\u76f8\u5f53\u306e\u6a5f\u80fd\u3092\u7121\u6599\u3067\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "notion-education": {
-    value: "\u5b66\u751f\u5411\u3051Education\u30d7\u30e9\u30f3\u3092\u7121\u6599\u5229\u7528",
-    reason: "\u8a8d\u8b58\u3055\u308c\u305f\u5b66\u6821\u30e1\u30fc\u30eb\u30a2\u30c9\u30ec\u30b9\u3092\u6301\u3064\u5b66\u751f\u306fNotion\u306eEducation\u30d7\u30e9\u30f3\u3092\u7121\u6599\u3067\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "autodesk-education": {
-    value: "Autodesk\u88fd\u54c1\u30921\u5e74\u9593\u7121\u6599\u5229\u7528",
-    reason: "\u5bfe\u8c61\u306e\u5b66\u751f\u306fAutodesk\u30bd\u30d5\u30c8\u30a6\u30a7\u30a2\u3084\u30b5\u30fc\u30d3\u30b9\u3092\u6559\u80b2\u7528\u9014\u30671\u5e74\u9593\u7121\u6599\u3067\u5229\u7528\u3067\u304d\u307e\u3059\u3002",
-    caution: "\u6559\u80b2\u7528\u30a2\u30af\u30bb\u30b9\u306f\u5546\u7528\u30fb\u8077\u696d\u7528\u30fb\u55b6\u5229\u76ee\u7684\u3067\u306f\u4f7f\u7528\u3067\u304d\u307e\u305b\u3093\u3002"
-  },
-
-  "github-pack-heroku": {
-    value: "\u6bce\u670813\u7c73\u30c9\u30eb\u306eHeroku\u30af\u30ec\u30b8\u30c3\u30c8\u309224\u304b\u6708",
-    reason: "GitHub Student Developer Pack\u306b\u542b\u307e\u308c\u308bHeroku\u7279\u5178\u3067\u3001\u6bce\u670813\u7c73\u30c9\u30eb\u5206\u306e\u30af\u30ec\u30b8\u30c3\u30c8\u309224\u304b\u6708\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "github-pack-termius": {
-    value: "Termius Pro / Team\u6a5f\u80fd\u3092\u5b66\u751f\u671f\u9593\u4e2d\u7121\u6599",
-    reason: "GitHub Education\u306e\u8a8d\u8a3c\u6e08\u307f\u5b66\u751f\u306fTermius\u306ePro\u30fbTeam\u6a5f\u80fd\u3092\u7121\u6599\u3067\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "github-pack-sentry": {
-    value: "Sentry Team\u6a5f\u80fd\u30921\u5e74\u9593\u5229\u7528",
-    reason: "GitHub Student Developer Pack\u3092\u901a\u3058\u3066Sentry\u306eTeam\u6a5f\u80fd\u3068\u62e1\u5f35\u3055\u308c\u305f\u76e3\u8996\u67a0\u30921\u5e74\u9593\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "github-pack-bootstrap-studio": {
-    value: "\u5b66\u751f\u671f\u9593\u4e2dBootstrap Studio\u3092\u7121\u6599\u5229\u7528",
-    reason: "GitHub Student Developer Pack\u306bBootstrap Studio\u306e\u5b66\u751f\u5411\u3051\u7121\u6599\u30e9\u30a4\u30bb\u30f3\u30b9\u304c\u542b\u307e\u308c\u307e\u3059\u3002"
-  },
-
-  "github-pack-lambdatest": {
-    value: "LambdaTest Live Plan\u30921\u5e74\u9593\u7121\u6599",
-    reason: "GitHub Student Developer Pack\u3067LambdaTest\u306eLive Plan\u30921\u5e74\u9593\u7121\u6599\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "github-pack-codedex": {
-    value: "Cod\u00e9dex Club\u30926\u304b\u6708\u5229\u7528",
-    reason: "GitHub Student Developer Pack\u3067Cod\u00e9dex Club\u30926\u304b\u6708\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "cloudflare-workers-free": {
-    value: "\u30b5\u30fc\u30d0\u30fc\u30ec\u30b9\u958b\u767a\u306e\u7121\u6599\u67a0",
-    reason: "Cloudflare Workers\u306eFree\u30d7\u30e9\u30f3\u3067\u3001\u5c0f\u898f\u6a21\u306a\u30b5\u30fc\u30d0\u30fc\u30ec\u30b9\u30a2\u30d7\u30ea\u3084API\u3092\u7121\u6599\u67a0\u5185\u3067\u52d5\u304b\u305b\u307e\u3059\u3002",
-    caution: "\u30ea\u30af\u30a8\u30b9\u30c8\u6570\u3084CPU\u6642\u9593\u306a\u3069\u306b\u7121\u6599\u67a0\u306e\u4e0a\u9650\u304c\u3042\u308a\u307e\u3059\u3002"
-  },
-
-  "supabase-free": {
-    value: "Postgres\u30c7\u30fc\u30bf\u30d9\u30fc\u30b9\u30fb\u8a8d\u8a3c\u30fb\u30b9\u30c8\u30ec\u30fc\u30b8\u306e\u7121\u6599\u67a0",
-    reason: "Supabase Free\u3067Postgres\u3001API\u3001\u8a8d\u8a3c\u3001\u30b9\u30c8\u30ec\u30fc\u30b8\u306a\u3069\u3092\u5c0f\u898f\u6a21\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u5411\u3051\u306b\u5229\u7528\u3067\u304d\u307e\u3059\u3002",
-    caution: "\u4e00\u5b9a\u671f\u9593\u975e\u30a2\u30af\u30c6\u30a3\u30d6\u306a\u7121\u6599\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u306f\u4e00\u6642\u505c\u3055\u308c\u308b\u5834\u5408\u304c\u3042\u308a\u307e\u3059\u3002"
-  },
-
-  "firebase-spark": {
-    value: "Firebase\u306e\u8907\u6570\u30b5\u30fc\u30d3\u30b9\u3092\u7121\u6599\u67a0\u3067\u5229\u7528",
-    reason: "Firebase Spark\u30d7\u30e9\u30f3\u3067\u3001\u5bfe\u8c61\u306eFirebase\u6a5f\u80fd\u3092\u7121\u6599\u67a0\u306e\u7bc4\u56f2\u5185\u3067\u5229\u7528\u3067\u304d\u307e\u3059\u3002"
-  },
-
-  "mongodb-atlas-free": {
-    value: "MongoDB Atlas\u306e\u7121\u6599\u30af\u30e9\u30b9\u30bf\u30fc",
-    reason: "MongoDB Atlas\u3067\u5c0f\u898f\u6a21\u306a\u958b\u767a\u30fb\u5b66\u7fd2\u7528\u30c7\u30fc\u30bf\u30d9\u30fc\u30b9\u3092\u7121\u6599\u3067\u4f5c\u6210\u3067\u304d\u307e\u3059\u3002",
-    caution: "\u7121\u6599\u30af\u30e9\u30b9\u30bf\u30fc\u81ea\u4f53\u306b\u671f\u9650\u306f\u3042\u308a\u307e\u305b\u3093\u304c\u30011\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u3042\u305f\u308a\u306eFree cluster\u6570\u306b\u5236\u9650\u304c\u3042\u308a\u307e\u3059\u3002"
-  },
-
-  "netlify-free": {
-    value: "\u6bce\u6708300\u30af\u30ec\u30b8\u30c3\u30c8\u306e\u7121\u6599\u67a0",
-    reason: "Netlify Free\u306f\u9759\u7684\u30b5\u30a4\u30c8\u3084Web\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u306e\u30c7\u30d7\u30ed\u30a4\u306b\u4f7f\u3048\u308b\u7121\u6599\u30d7\u30e9\u30f3\u3067\u3059\u3002",
-    caution: "\u6708\u9593\u30af\u30ec\u30b8\u30c3\u30c8\u4e0a\u9650\u3092\u8d85\u3048\u308b\u3068\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u304c\u4e00\u6642\u505c\u3059\u308b\u5834\u5408\u304c\u3042\u308a\u307e\u3059\u3002"
-  },
-
-  "render-free": {
-    value: "\u7121\u6599\u306eWeb Service\u30fbStatic Site",
-    reason: "Render\u306e\u7121\u6599\u67a0\u3067\u5b66\u7fd2\u30fb\u8a66\u4f5c\u7528\u306eWeb\u30b5\u30fc\u30d3\u30b9\u3084\u9759\u7684\u30b5\u30a4\u30c8\u3092\u516c\u958b\u3067\u304d\u307e\u3059\u3002",
-    caution: "\u7121\u6599Web Service\u306f15\u5206\u9593\u30a2\u30af\u30bb\u30b9\u304c\u306a\u3044\u3068\u30b9\u30ea\u30fc\u30d7\u3057\u307e\u3059\u3002\u7121\u6599Postgres\u306b\u306f\u671f\u9650\u304c\u3042\u308a\u307e\u3059\u3002"
-  },
-
-  "groq-free-tier": {
-    value: "\u30ec\u30fc\u30c8\u5236\u9650\u4ed8\u304dAI API\u306e\u7121\u6599\u67a0",
-    reason: "GroqCloud\u306eFree tier\u3067\u3001\u5bfe\u5fdc\u30e2\u30c7\u30eb\u306eAI API\u3092\u30ea\u30af\u30a8\u30b9\u30c8\u30fb\u30c8\u30fc\u30af\u30f3\u5236\u9650\u5185\u3067\u8a66\u305b\u307e\u3059\u3002"
-  },
-
-  "neon-free": {
-    value: "\u30b5\u30fc\u30d0\u30fc\u30ec\u30b9Postgres\u306e\u7121\u6599\u67a0",
-    reason: "Neon Free\u3067Postgres\u3001\u30b3\u30f3\u30d4\u30e5\u30fc\u30c8\u3001\u30b9\u30c8\u30ec\u30fc\u30b8\u3001\u30d6\u30e9\u30f3\u30c1\u6a5f\u80fd\u306a\u3069\u306e\u7121\u6599\u67a0\u3092\u5229\u7528\u3067\u304d\u307e\u3059\u3002",
-    caution: "\u7121\u6599\u67a0\u306e\u4e0a\u9650\u306f\u5909\u66f4\u3055\u308c\u308b\u3053\u3068\u304c\u3042\u308b\u305f\u3081\u3001\u5229\u7528\u524d\u306b\u516c\u5f0f\u306e\u6700\u65b0\u30d7\u30e9\u30f3\u5185\u5bb9\u3092\u78ba\u8a8d\u3057\u3066\u304f\u3060\u3055\u3044\u3002"
-  }
-};
 
 
 function localizedValue(perk) {
@@ -328,8 +200,7 @@ function localizedValue(perk) {
     return perk.value_display;
   }
 
-  return JA_DETAIL[perk.id]?.value
-    || perk.value_display;
+  return localizedField(perk, currentLanguage, "value_display", perk.value_display);
 }
 
 
@@ -369,8 +240,7 @@ function localizedReason(perk) {
     return perk.why;
   }
 
-  return JA_DETAIL[perk.id]?.reason
-    || "\u6761\u4ef6\u306b\u5408\u3046\u7279\u5178\u3067\u3059\u3002\u8a73\u7d30\u306f\u516c\u5f0f\u60c5\u5831\u3092\u78ba\u8a8d\u3057\u3066\u304f\u3060\u3055\u3044\u3002";
+  return localizedField(perk, currentLanguage, "reason", perk.why);
 }
 
 
@@ -379,8 +249,7 @@ function localizedCaution(perk) {
     return perk.caution || "";
   }
 
-  return JA_DETAIL[perk.id]?.caution
-    || "";
+  return localizedField(perk, currentLanguage, "caution", perk.caution || "");
 }
 
 
@@ -846,19 +715,12 @@ function sectionHtml(
   `;
 }
 
-function newestCheckDate() {
-  const values = currentResults
-    .map(
-      (item) =>
-        item.last_checked ||
-        item.verified_at
-    )
-    .filter(Boolean)
-    .sort();
-
-  return values.length
-    ? values[values.length - 1]
-    : null;
+function catalogStatusHtml() {
+  if (!currentCatalog) return "";
+  const refreshed = new Intl.DateTimeFormat(currentLanguage === "ja" ? "ja-JP" : "en-US", {
+    dateStyle: "medium", timeStyle: "short",
+  }).format(new Date(currentCatalog.fetched_at));
+  return `<div class="catalog-checked" data-catalog-revision="${escapeHtml(currentCatalog.revision)}">${escapeHtml(t("catalogChecked"))}: ${escapeHtml(refreshed)}</div>`;
 }
 
 function renderResults() {
@@ -872,8 +734,8 @@ function renderResults() {
   if (!currentResults.length) {
     count.textContent = "";
 
-    container.innerHTML =
-      `<div class="empty">${escapeHtml(t("noMatches"))}</div>`;
+    container.innerHTML = catalogStatusHtml() +
+      `<div class="empty">${escapeHtml(t(currentError ? "catalogUnavailable" : scanning ? "scanning" : "noMatches"))}</div>`;
 
     return;
   }
@@ -895,16 +757,7 @@ function renderResults() {
       ? `${currentResults.length}${t("eligible")}`
       : `${currentResults.length} ${t("eligible")}`;
 
-  const checked = newestCheckDate();
-
-  const catalogChecked = checked
-    ? `
-      <div class="catalog-checked">
-        ${escapeHtml(t("catalogChecked"))}:
-        ${escapeHtml(formatDate(checked))}
-      </div>
-    `
-    : "";
+  const catalogChecked = catalogStatusHtml();
 
   const aiCard = currentRecommendation
     ? `
@@ -1074,7 +927,7 @@ async function main() {
       setStaticText();
 
       if (!button.disabled) {
-        status.textContent = t("ready");
+        status.textContent = t(currentError ? "catalogUnavailable" : "ready");
       }
     }
   );
@@ -1098,20 +951,32 @@ async function main() {
       currentAiTake = "";
       currentRecommendation = null;
       currentAiExplained = false;
+      currentResults = [];
+      currentCatalog = null;
+      currentError = false;
+      scanning = true;
+      renderResults();
 
       status.textContent =
         t("scanning");
 
       try {
+        const catalogJson = await fetchCatalog();
+        const fetchedAt = new Date().toISOString();
         const response =
           await anna.tools.invoke({
             tool_id: TOOL_ID,
             method: "find_perks",
-            args: profile,
+            args: { ...profile, catalog_json: catalogJson },
           });
 
         const payload =
           response?.data ?? response;
+
+        if (response?.success === false || !Array.isArray(payload?.results) || !payload?.catalog) {
+          throw new Error("catalog_matching_failed");
+        }
+        currentCatalog = { ...payload.catalog, fetched_at: fetchedAt };
 
         currentResults =
           payload?.results ?? [];
@@ -1179,7 +1044,7 @@ async function main() {
           key:
             "ai-perk-radar:last-profile",
           value: profile,
-        });
+        }).catch(error => console.warn("Profile could not be saved:", error));
 
         status.textContent =
           currentAiExplained
@@ -1188,11 +1053,16 @@ async function main() {
 
       } catch (error) {
         console.error(error);
-
-        status.textContent =
-          `Error: ${error.message}`;
+        currentError = true;
+        currentCatalog = null;
+        currentResults = [];
+        currentRecommendation = null;
+        currentAiTake = "";
+        status.textContent = t("catalogUnavailable");
 
       } finally {
+        scanning = false;
+        renderResults();
         button.disabled = false;
       }
     }

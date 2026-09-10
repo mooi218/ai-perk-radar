@@ -1,0 +1,29 @@
+name: Validate catalog data
+
+on:
+  push:
+    paths:
+      - executas/ai-perk-radar/ai_perk_radar/opportunities.json
+      - executas/ai-perk-radar/catalog_validation.py
+      - scripts/check_catalog.py
+      - .github/workflows/validate-catalog.yml
+  pull_request:
+    paths:
+      - executas/ai-perk-radar/ai_perk_radar/opportunities.json
+      - executas/ai-perk-radar/catalog_validation.py
+      - scripts/check_catalog.py
+      - .github/workflows/validate-catalog.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python scripts/check_catalog.py

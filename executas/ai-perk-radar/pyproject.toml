@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tool-dev-ai-perk-radar"
-version = "0.1.5"
+version = "0.1.6"
 description = "Executa for the ai-perk-radar Anna App"
 requires-python = ">=3.10"
 
@@ -12,4 +12,4 @@ requires-python = ">=3.10"
 "tool-dev-ai-perk-radar" = "ai_perk_radar_plugin:main"
 
 [tool.setuptools]
-py-modules = ["ai_perk_radar_plugin"]
+py-modules = ["ai_perk_radar_plugin", "catalog_validation"]

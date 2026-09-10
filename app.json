@@ -4,6 +4,7 @@
   "description": "AI Perk Radar matches your profile with verified student benefits, developer credits, AI offers, research programs, and useful free tiers. It ranks relevant opportunities, highlights important eligibility and limitations, and links directly to official sources.",
   "category": "productivity",
   "slug": "ai-perk-radar",
+  "version": "0.1.6",
   "bundled_executas": {
     "matcher": {
       "path": "./executas/ai-perk-radar"

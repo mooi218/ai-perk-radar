@@ -3,18 +3,25 @@
 import json
 import sys
 from datetime import date, datetime
-from pathlib import Path
+from catalog_validation import CatalogError, parse_catalog
 
 
 MANIFEST = {
     "name": "tool-chiku-ai-perk-radar-matcher-68rpuryp",
     "display_name": "AI Perk Radar Matcher",
-    "version": "0.1.5",
+    "version": "0.1.6",
+    "description": "Validates a current data-only catalog and ranks eligible perks deterministically.",
     "tools": [
         {
             "name": "find_perks",
             "description": "Rank verified current AI, developer, student, and research perks for a user.",
             "parameters": [
+                {
+                    "name": "catalog_json",
+                    "type": "string",
+                    "description": "Current schema-1 JSON catalog fetched by the app from its fixed public GitHub endpoint. Data only; max 256 KiB.",
+                    "required": True,
+                },
                 {
                     "name": "country",
                     "type": "string",
@@ -87,21 +94,6 @@ MANIFEST = {
 }
 
 
-DATA_PATH = (
-    Path(__file__).resolve().parent
-    / "ai_perk_radar"
-    / "opportunities.json"
-)
-
-
-def load_perks():
-    with DATA_PATH.open(
-        "r",
-        encoding="utf-8",
-    ) as file:
-        return json.load(file)
-
-
 def parse_date(value):
     if not value:
         return None
@@ -167,7 +159,7 @@ def deadline_label(deadline):
 
 
 def score_perk(perk, profile):
-    if is_expired(perk):
+    if perk.get("availability") == "expired" or is_expired(perk):
         return None
 
     if (
@@ -382,6 +374,7 @@ def score_perk(perk, profile):
         "source_url": (
             perk["source_url"]
         ),
+        "localizations": perk.get("localizations", {}),
     }
 
 
@@ -400,7 +393,7 @@ def ranking_key(item):
 
 
 def is_recommendable(item):
-    return item.get("availability") != "check"
+    return item.get("availability") == "active"
 
 
 def select_recommendation(items):
@@ -431,7 +424,8 @@ def public_result(item):
 
 
 def find_perks(args):
-    perks = load_perks()
+    catalog, digest = parse_catalog(args.get("catalog_json"))
+    perks = catalog["opportunities"]
     ranked = []
 
     for perk in perks:
@@ -459,6 +453,11 @@ def find_perks(args):
         ),
         "total_matches": len(ranked),
         "catalog_size": len(perks),
+        "catalog": {
+            "revision": catalog["revision"],
+            "published_at": catalog["published_at"],
+            "sha256": digest,
+        },
         "generated_on": (
             date.today().isoformat()
         ),
@@ -467,10 +466,13 @@ def find_perks(args):
 
 def invoke(method, args):
     if method == "find_perks":
-        return {
-            "success": True,
-            "data": find_perks(args),
-        }
+        try:
+            return {"success": True, "data": find_perks(args)}
+        except CatalogError:
+            return {
+                "success": False,
+                "error": "The current catalog is unavailable or invalid. Please refresh and try again.",
+            }
 
     return {
         "success": False,

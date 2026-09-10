@@ -90,6 +90,8 @@ pyi_spec = build_root / "spec"
 stage = build_root / "stage"
 
 if stage.exists():
+    if stage.resolve() != (ROOT / ".build-pyinstaller" / "stage").resolve() or stage.is_symlink():
+        raise RuntimeError("Unexpected build staging path")
     shutil.rmtree(stage)
 
 for p in (
@@ -126,8 +128,6 @@ cmd = [
     str(pyi_work),
     "--specpath",
     str(pyi_spec),
-    "--add-data",
-    f"{data_file}{os.pathsep}ai_perk_radar",
     str(ROOT / "executa_entry.py"),
 ]
 
@@ -161,7 +161,10 @@ if system == "darwin":
     )
 
 # Verify describe, ranking, and UTF-8 catalog data before packaging.
+# Catalog is fixture input to smoke tests only; it is not embedded in the binary.
+catalog_json = data_file.read_text(encoding="utf-8")
 review_profile = {
+    "catalog_json": catalog_json,
     "country": "JP",
     "student": True,
     "researcher": False,
@@ -194,6 +197,23 @@ requests = [
     },
 ]
 
+# Prove that an unchanged executable consumes a changed catalog on its next call.
+updated_catalog = json.loads(catalog_json)
+updated_catalog["revision"] += ".smoke"
+updated_catalog["opportunities"] = [p for p in updated_catalog["opportunities"] if p["id"] != "zed-student-plan-2026"]
+for perk in updated_catalog["opportunities"]:
+    if perk["id"] == "aws-student-rewards-2026":
+        perk["availability"] = "expired"
+    if perk["id"] == "azure-for-students":
+        perk["value_display"] = "Updated smoke-test value"
+        perk["localizations"]["ja"]["value_display"] = "更新確認"
+requests.append({
+    "jsonrpc": "2.0", "method": "invoke", "id": 3,
+    "params": {"tool": "find_perks", "arguments": {
+        **review_profile, "catalog_json": json.dumps(updated_catalog, ensure_ascii=False),
+    }},
+})
+
 request = "\n".join(
     json.dumps(item)
     for item in requests
@@ -203,6 +223,7 @@ test = subprocess.run(
     [str(binary)],
     input=request,
     text=True,
+    encoding="utf-8",
     capture_output=True,
     timeout=30,
 )
@@ -310,6 +331,21 @@ if (
     )
 
 print("Smoke test: OK")
+
+updated_result = by_id.get(3, {}).get("result", {})
+if not updated_result.get("success"):
+    raise RuntimeError("Changed catalog smoke invoke failed")
+updated_data = updated_result["data"]
+updated_by_id = {p["id"]: p for p in updated_data["results"]}
+if (
+    "aws-student-rewards-2026" in updated_by_id
+    or "zed-student-plan-2026" in updated_by_id
+    or updated_by_id["azure-for-students"]["value_display"] != "Updated smoke-test value"
+    or updated_by_id["azure-for-students"]["localizations"]["ja"]["value_display"] != "更新確認"
+    or data["catalog"]["sha256"] == updated_data["catalog"]["sha256"]
+):
+    raise RuntimeError("Unchanged binary failed catalog-only refresh test")
+print("Catalog-only refresh with same executable: OK")
 
 # -------------------------------------------------
 # Anna canonical archive layout
