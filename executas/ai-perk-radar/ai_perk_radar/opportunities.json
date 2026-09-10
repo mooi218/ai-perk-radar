@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": "2026-09-11.1",
-  "published_at": "2026-09-10T15:12:27Z",
+  "revision": "2026-09-11.2",
+  "published_at": "2026-09-10T15:50:24Z",
   "opportunities": [
     {
       "id": "google-ai-plus-student-2026",
@@ -569,19 +569,20 @@
       "value_display": "6 months of Codédex Club",
       "deadline": null,
       "announced": null,
-      "verified_at": "2026-09-02",
+      "verified_at": "2026-09-10",
       "source_url": "https://education.github.com/pack/",
       "reason": "Verified students can receive six months of Codédex Club through the GitHub Student Developer Pack.",
-      "last_checked": "2026-09-02",
+      "last_checked": "2026-09-10",
       "source_quality": "official",
       "availability": "active",
-      "caution": "",
+      "caution": "Student verification through GitHub Education is required.",
       "parent_id": "github-student-developer-pack",
       "offer_type": "student_perk",
       "localizations": {
         "ja": {
           "value_display": "Codédex Clubを6か月利用",
-          "reason": "GitHub Student Developer PackでCodédex Clubを6か月利用できます。"
+          "reason": "GitHub Educationで認証済みの学生は、Student Developer Packを通じてCodédex Clubを6か月無料で利用できます。",
+          "caution": "GitHub Educationでの学生認証が必要です。"
         }
       }
     },
