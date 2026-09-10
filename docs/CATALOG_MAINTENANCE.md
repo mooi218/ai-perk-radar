@@ -2,7 +2,7 @@
 
 ## Current catalog
 
-AI Perk Radar uses a self-maintained structured catalog, currently containing 25 opportunities. The catalog lives in the public project repository and has its own schema version, revision, and publication timestamp. Its content can change independently of the App and Executa version.
+AI Perk Radar uses a self-maintained structured catalog, currently containing 45 opportunities. The catalog lives in the public project repository and has its own schema version, revision, and publication timestamp. Its content can change independently of the App and Executa version.
 
 Each record carries the fields needed to evaluate and audit it, including:
 
@@ -75,4 +75,6 @@ After review approval, the next catalog-focused iterations are planned around re
 - **Changed**: material eligibility, value, or availability updates.
 - **For you**: newly relevant offers after a profile or catalog change.
 
-The personalized change-history views are roadmap items, not claims about functionality in v0.1.6. The current app already supports deadline-priority matching, while this review release supplies the independent data-update mechanism those future views need.
+These views are implemented in the v0.1.7 working draft, together with saved perks and profile restoration. They are not available in the v0.1.6 review candidate. New and Changed compare actual catalog membership and material fields against the prior visit; updating only verification dates does not create a Changed event. Newly for you highlights existing catalog entries that now match the profile.
+
+Run `python scripts/catalog_health.py` to list verification-due, expired, uncertain, or untranslated entries. `--date YYYY-MM-DD` can preview future maintenance needs. The report never advances verification dates or claims that links/content have been checked automatically.

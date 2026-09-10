@@ -55,8 +55,8 @@
     h1 {
       max-width: 680px;
       margin: 17px 0 10px;
-      font-size: clamp(36px, 7vw, 58px);
-      line-height: .98;
+      font-size: clamp(32px, 6vw, 48px);
+      line-height: 1.06;
       letter-spacing: -0.055em;
     }
 
@@ -486,6 +486,47 @@
       font-size: 12px;
     }
 
+    button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible {
+      outline: 3px solid #5e8965; outline-offset: 3px;
+    }
+    .chip input:focus-visible + span { outline: 3px solid #5e8965; outline-offset: 3px; }
+    .panel > summary { cursor: pointer; font-weight: 800; color: #324536; }
+    .panel[open] > summary { margin-bottom: 24px; }
+    #profile-summary { display: inline; font-weight: 500; font-size: 12px; margin-left: 10px; color: #667064; }
+    .radar-tools { margin: 20px 0 16px; }
+    .radar-views { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+    .view-button { border: 1px solid #d6dfd3; background: rgba(255,255,255,.8); color: #50604e; border-radius: 13px; padding: 12px; text-align: left; cursor: pointer; }
+    .view-button strong { display: block; color: #263e2c; font-size: 22px; margin-bottom: 3px; }
+    .view-button span { font-size: 12px; font-weight: 700; }
+    .view-button[aria-pressed="true"] { background: #253b2c; border-color: #253b2c; color: white; }
+    .view-button[aria-pressed="true"] strong { color: white; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .search-field { flex: 1 1 200px; min-width: 0; min-height: 44px; border: 1px solid #d5dbd2; border-radius: 12px; background: white; padding: 10px 13px; }
+    .filter-row select { flex: 0 1 170px; width: auto; min-width: 140px; }
+    .confirmed-filter { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: #52604e; }
+    .quiet-button, .save-button, .explain-button { min-height: 36px; border: 1px solid #d5ddd2; border-radius: 10px; padding: 7px 12px; background: white; color: #344d38; cursor: pointer; font-size: 12px; font-weight: 750; }
+    .quiet-button:disabled, .save-button:disabled, .explain-button:disabled { opacity: .6; cursor: wait; }
+    .save-button[aria-pressed="true"] { background: #edf5e9; border-color: #adc6a2; }
+    .card-actions { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+    .signal-badge { background: #e9effa; color: #405b87; }
+    .deadline-badge { background: #fff0d5; color: #855c0e; }
+    .saved-unavailable { border-style: dashed; background: #f9faf7; }
+    .saved-unavailable p { color: #6b7367; font-size: 13px; line-height: 1.5; }
+    #visit-note, #storage-notice { color: #687565; font-size: 12px; line-height: 1.6; margin: 12px 2px; }
+    #storage-notice:empty { display: none; }
+    .results-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .offer-empty { padding: 24px; color: #687565; text-align: center; }
+    .score { white-space: nowrap; }
+    @media (max-width: 480px) {
+      .radar-views { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .checked-row, .results-head, .action-row { flex-wrap: wrap; align-items: flex-start; }
+      .perk-top { align-items: flex-start; }
+      .perk h3 { overflow-wrap: anywhere; }
+      .meta { gap: 6px; }
+      .filter-row select { flex-grow: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } #find-btn:hover { transform: none; } }
+
   </style>
 
   <script src="./anna-tool-ids.js" defer></script>
@@ -512,7 +553,8 @@
       Tell the radar who you are and it will rank the best current opportunities.
     </p>
 
-    <section class="panel">
+    <details class="panel" id="profile-panel" open>
+      <summary><span id="profile-title">Your profile</span><span id="profile-summary"></span></summary>
       <div class="form-grid">
         <label>
           <span class="field-label">Country</span>
@@ -580,14 +622,27 @@
 
       <div class="action-row">
         <button id="find-btn">Find my perks</button>
-        <span id="status">Ready.</span>
+        <span id="status" role="status" aria-live="polite">Ready.</span>
       </div>
-    </section>
+    </details>
+
+    <p id="storage-notice" role="status" aria-live="polite"></p>
 
     <div class="results-head">
       <h2>Your matches</h2>
-      <span id="result-count"></span>
+      <div class="results-actions"><span id="result-count"></span><button id="refresh-btn" class="quiet-button" type="button">Refresh catalog</button></div>
     </div>
+
+    <section class="radar-tools" aria-label="Explore your perks">
+      <div id="radar-views" class="radar-views" aria-label="Result views"></div>
+      <div class="filter-row">
+        <input id="perk-search" class="search-field" type="search" maxlength="120" placeholder="Search perks or providers" aria-label="Search perks or providers" />
+        <select id="offer-filter" aria-label="Offer type"><option value="all">All offer types</option><option value="exclusive">Exclusive perks</option><option value="free_tier">Free tools</option></select>
+        <label class="confirmed-filter"><input id="confirmed-only" type="checkbox" /><span id="confirmed-label">Recently verified only</span></label>
+        <button id="clear-filters" class="quiet-button" type="button">Clear filters</button>
+      </div>
+      <p id="visit-note"></p>
+    </section>
 
     <section id="results">
       <div class="empty">Run the radar to see your matches.</div>

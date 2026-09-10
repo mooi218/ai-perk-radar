@@ -10,6 +10,10 @@ AI Perk Radar processes the choices you make in the app, such as country/region,
 
 The app may use Anna platform capabilities, including tool invocation, app storage, and language-model completion, in order to provide its features. Data handled by the Anna platform is also subject to Anna's own terms and privacy practices.
 
+The v0.1.7 draft remembers your profile and language, saved perk IDs/titles and save times, and a previous-visit snapshot containing the visit time, matched IDs, and hashes of catalog facts. These values are stored in Anna's per-user App bucket. They support restoration and new/changed indicators; they are not used as an offline source of current offer terms. You can remove a saved perk using its Save toggle.
+
+In v0.1.7, a language-model explanation is requested only when you click the Anna explanation button. It receives the profile used for matching and the single selected perk, and uses the Anna account's available model and quota. Saved lists and visit history are not sent to the model.
+
 ## Data collection and sharing
 
 AI Perk Radar does not independently sell personal information to advertisers or data brokers.

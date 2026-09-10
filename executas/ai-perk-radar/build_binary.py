@@ -215,7 +215,7 @@ requests.append({
 })
 
 request = "\n".join(
-    json.dumps(item)
+    json.dumps(item, ensure_ascii=False)
     for item in requests
 ) + "\n"
 

@@ -9,7 +9,7 @@ from catalog_validation import CatalogError, parse_catalog
 MANIFEST = {
     "name": "tool-chiku-ai-perk-radar-matcher-68rpuryp",
     "display_name": "AI Perk Radar Matcher",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "description": "Validates a current data-only catalog and ranks eligible perks deterministically.",
     "tools": [
         {
@@ -483,13 +483,25 @@ def invoke(method, args):
 
 
 def main():
+    # Windows console/pipe defaults can otherwise parse UTF-8 as a local codepage.
+    sys.stdin.reconfigure(encoding="utf-8", errors="strict")
+    sys.stdout.reconfigure(encoding="utf-8", errors="strict", newline="\n")
     for line in sys.stdin:
         line = line.strip()
 
         if not line:
             continue
 
-        req = json.loads(line)
+        try:
+            req = json.loads(line)
+        except json.JSONDecodeError:
+            sys.stdout.write(json.dumps({"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "Invalid JSON"}}) + "\n")
+            sys.stdout.flush()
+            continue
+        if not isinstance(req, dict):
+            sys.stdout.write(json.dumps({"jsonrpc": "2.0", "id": None, "error": {"code": -32600, "message": "Request must be an object"}}) + "\n")
+            sys.stdout.flush()
+            continue
 
         try:
             if req.get("method") == "describe":

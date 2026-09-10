@@ -41,7 +41,7 @@ jobs:
         run: python -m unittest discover -s executas/ai-perk-radar/tests -v
 
       - name: Run UI recommendation test
-        run: node --test tests/test_ui_recommendation.mjs tests/test_catalog_fetch.mjs
+        run: node --test tests/test_ui_recommendation.mjs tests/test_catalog_fetch.mjs tests/test_radar_state.mjs
 
       - name: Build Executa
         env:

@@ -2,13 +2,14 @@
   "schema": 2,
   "permissions": [
     "tools.invoke",
+    "storage.read",
     "storage.write",
     "llm.complete"
   ],
   "required_executas": [
     {
       "tool_id": "bundled:matcher",
-      "version": "latest"
+      "version": "0.1.7"
     }
   ],
   "tags": [
@@ -40,6 +41,7 @@
         "required:bundled:matcher"
       ],
       "storage": [
+        "get",
         "set"
       ],
       "window": [
