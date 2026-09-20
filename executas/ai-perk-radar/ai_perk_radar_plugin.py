@@ -2,14 +2,14 @@
 
 import json
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from catalog_validation import CatalogError, parse_catalog
 
 
 MANIFEST = {
     "name": "tool-chiku-ai-perk-radar-matcher-68rpuryp",
     "display_name": "AI Perk Radar Matcher",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "description": "Validates a current data-only catalog and ranks eligible perks deterministically.",
     "tools": [
         {
@@ -104,6 +104,10 @@ def parse_date(value):
     ).date()
 
 
+def utc_today():
+    return datetime.now(timezone.utc).date()
+
+
 def region_matches(perk, country):
     regions = perk["regions"]
 
@@ -121,7 +125,7 @@ def is_expired(perk):
     if deadline is None:
         return False
 
-    return deadline < date.today()
+    return deadline < utc_today()
 
 
 def freshness_label(announced):
@@ -130,10 +134,10 @@ def freshness_label(announced):
     )
 
     if announced_date is None:
-        return "Current"
+        return "Unknown"
 
     days = (
-        date.today()
+        utc_today()
         - announced_date
     ).days
 
@@ -151,7 +155,7 @@ def freshness_label(announced):
 
 def deadline_label(deadline):
     if not deadline:
-        return "No fixed date"
+        return "No published deadline"
 
     return parse_date(
         deadline
@@ -244,7 +248,7 @@ def score_perk(perk, profile):
     ):
         score += 18
         reasons.append(
-            "student eligibility"
+            "student profile"
         )
 
     if (
@@ -253,7 +257,7 @@ def score_perk(perk, profile):
     ):
         score += 18
         reasons.append(
-            "research eligibility"
+            "research profile"
         )
 
     priority = profile["priority"]
@@ -283,7 +287,7 @@ def score_perk(perk, profile):
         if deadline:
             remaining = (
                 deadline
-                - date.today()
+                - utc_today()
             ).days
 
             if remaining <= 30:
@@ -303,7 +307,7 @@ def score_perk(perk, profile):
 
     if announced:
         age = (
-            date.today()
+            utc_today()
             - announced
         ).days
 
@@ -393,7 +397,13 @@ def ranking_key(item):
 
 
 def is_recommendable(item):
-    return item.get("availability") == "active"
+    if item.get("availability") != "active":
+        return False
+    checked = parse_date(item.get("last_checked") or item.get("verified_at"))
+    if checked is None:
+        return False
+    cadence = 7 if item.get("deadline_raw") or item.get("freshness") in ("New", "Just launched") else 30
+    return 0 <= (utc_today() - checked).days <= cadence
 
 
 def select_recommendation(items):
@@ -459,7 +469,7 @@ def find_perks(args):
             "sha256": digest,
         },
         "generated_on": (
-            date.today().isoformat()
+            utc_today().isoformat()
         ),
     }
 

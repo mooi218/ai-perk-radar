@@ -1,8 +1,9 @@
 import { AnnaAppRuntime } from "/static/anna-apps/_sdk/latest/index.js";
 import { buildRecommendationPrompt } from "./recommendation.mjs";
 import { fetchCatalog, localizedField } from "./catalog.mjs";
+import { mountDiscovery } from "./discovery-panel.mjs";
 import { KEYS, VIEWS, normalizeProfile, normalizeSaved, normalizeVisit, visitSnapshot, visitChanges,
-  daysUntil, isExpiring, needsRecheck, filterMatches, searchMatches, savedStatus, updateSaved } from "./radar-state.mjs";
+  daysUntil, isExpiring, needsRecheck, filterMatches, searchMatches, savedStatus, updateSaved, loadSaved } from "./radar-state.mjs";
 
 const EXECUTA_HANDLE = "matcher";
 
@@ -35,6 +36,8 @@ let filters = { view: "all", query: "", type: "all", confirmed: false };
 let explanationEpoch = 0;
 let explaining = false;
 let matchedProfile = null;
+let discoveryPanel = null;
+let profileEpoch = 0;
 const savingIds = new Set();
 
 let exclusiveLimit = INITIAL_LIMIT;
@@ -43,7 +46,7 @@ let freeLimit = INITIAL_LIMIT;
 const TEXT = {
   en: {
     eyebrow: "Fresh opportunities / verified sources",
-    hero: "Find the perks you're actually eligible for.",
+    hero: "Find perks worth checking for your profile.",
     lead:
       "AI subscriptions, developer credits, student plans and early programs. Tell the radar who you are and it will rank the best current opportunities.",
 
@@ -79,10 +82,13 @@ const TEXT = {
     updated: "Matches updated.",
 
     matches: "Your matches",
-    eligible: "eligible",
+    eligible: "potential matches",
 
     annaTake: "Anna's take",
-    personalized: "Personalized recommendation",
+    personalized: "Highest-ranked recently checked match",
+    matchLabel: "fit points", eligibilityNote: "A fit score is not an eligibility guarantee. Check the provider's requirements before applying.",
+    profileChanged: "Your profile changed. Search again to update the matches.",
+    discoverySummary: "Find more with Anna · optional live search",
 
     exclusive: "Exclusive perks",
     exclusiveDesc:
@@ -120,7 +126,7 @@ const TEXT = {
     firstVisit: "Your first search sets a baseline. New and changed perks will be highlighted on your next visit or refresh.",
     sinceVisit: "Compared with your last visit", historyUnavailable: "Visit history is unavailable. Matching still works.",
     noFiltered: "No perks match this view. Try another view or clear the filters.",
-    savedEmpty: "Save a perk to keep track of it here. Its availability is checked again on each search.",
+    savedEmpty: "Save a perk to keep track of it here. Each search reads the latest maintained catalog; source-check dates are shown separately.",
     save: "Save", saved: "Saved", saving: "Saving…", savedDone: "Saved perks updated.",
     storageFailed: "Your preferences or saved perks could not be saved. Please try again.",
     storageUnavailable: "Some saved preferences could not be loaded. You can still search for perks.",
@@ -141,7 +147,7 @@ const TEXT = {
 
   ja: {
     eyebrow: "\u6700\u65b0\u7279\u5178 / \u516c\u5f0f\u60c5\u5831\u3092\u78ba\u8a8d\u6e08\u307f",
-    hero: "\u3042\u306a\u305f\u304c\u672c\u5f53\u306b\u4f7f\u3048\u308b\u7279\u5178\u3092\u898b\u3064\u3051\u307e\u3059\u3002",
+    hero: "あなたの条件に合いそうな特典を見つけます。",
     lead:
       "AI\u3001\u958b\u767a\u8005\u5411\u3051\u30af\u30ec\u30b8\u30c3\u30c8\u3001\u5b66\u751f\u30d7\u30e9\u30f3\u3001\u671f\u9593\u9650\u5b9a\u30ad\u30e3\u30f3\u30da\u30fc\u30f3\u304b\u3089\u3001\u6761\u4ef6\u306b\u5408\u3046\u3082\u306e\u3092\u512a\u5148\u3057\u3066\u8868\u793a\u3057\u307e\u3059\u3002",
 
@@ -177,10 +183,13 @@ const TEXT = {
     updated: "\u691c\u7d22\u7d50\u679c\u3092\u66f4\u65b0\u3057\u307e\u3057\u305f\u3002",
 
     matches: "\u3042\u306a\u305f\u3078\u306e\u304a\u3059\u3059\u3081",
-    eligible: "\u4ef6\u304c\u5bfe\u8c61",
+    eligible: "件の候補",
 
     annaTake: "Anna\u306e\u304a\u3059\u3059\u3081",
-    personalized: "\u6761\u4ef6\u306b\u5408\u308f\u305b\u305fAI\u63a8\u85a6",
+    personalized: "確認が新しい候補の最上位",
+    matchLabel: "点の関連度", eligibilityNote: "関連度は利用資格を保証する確率ではありません。申込前に提供元の条件を確認してください。",
+    profileChanged: "プロフィールが変わりました。再検索して候補を更新してください。",
+    discoverySummary: "Annaでもっと探す · 必要なときだけ追加検索",
 
     exclusive: "\u9650\u5b9a\u7279\u5178",
     exclusiveDesc:
@@ -218,7 +227,7 @@ const TEXT = {
     firstVisit: "初回の検索を比較の基準にします。次の訪問や更新から、新着・変更のある特典が分かります。",
     sinceVisit: "前回の訪問と比較", historyUnavailable: "訪問履歴を読み込めませんでした。特典の検索は利用できます。",
     noFiltered: "この絞り込みに合う特典はありません。別の表示に切り替えるか、絞り込みを解除してください。",
-    savedEmpty: "気になる特典を保存すると、ここでまとめて確認できます。提供状況は検索のたびに確認します。",
+    savedEmpty: "気になる特典を保存して、最新のカタログで確認できます。各提供元を確認した日はカードに別途表示します。",
     save: "保存", saved: "保存済み", saving: "保存中…", savedDone: "保存した特典を更新しました。",
     storageFailed: "設定や特典を保存できませんでした。もう一度お試しください。",
     storageUnavailable: "保存した設定の一部を読み込めませんでした。特典の検索は利用できます。",
@@ -257,7 +266,7 @@ function localizedDeadline(perk) {
   }
 
   if (!perk.deadline_raw) {
-    return "\u671f\u9650\u306a\u3057";
+    return "期限の明記なし";
   }
 
   return formatDate(perk.deadline_raw);
@@ -266,15 +275,16 @@ function localizedDeadline(perk) {
 
 function localizedFreshness(perk) {
   if (currentLanguage !== "ja") {
-    return perk.freshness;
+    return ["Unknown", "Current"].includes(perk.freshness) ? "Announcement date unknown" : perk.freshness;
   }
 
   const map = {
     "Just launched": "\u767b\u5834\u3057\u305f\u3070\u304b\u308a",
     "New": "\u65b0\u7740",
     "Recent": "\u6700\u8fd1\u8ffd\u52a0",
-    "Current": "\u73fe\u5728\u5229\u7528\u53ef\u80fd",
-    "Established": "\u7d99\u7d9a\u63d0\u4f9b\u4e2d"
+    "Current": "発表日不明",
+    "Unknown": "発表日不明",
+    "Established": "以前からある特典"
   };
 
   return map[perk.freshness]
@@ -511,6 +521,8 @@ function setStaticText() {
   }
 
   renderResults();
+  byId("discovery-summary").textContent = t("discoverySummary");
+  discoveryPanel?.render();
 }
 
 function getProfile() {
@@ -660,7 +672,7 @@ function cardHtml(perk) {
         </div>
 
         <div class="score">
-          ${escapeHtml(perk.match_score)}% match
+          ${escapeHtml(perk.match_score)} ${escapeHtml(t("matchLabel"))}
         </div>
       </div>
 
@@ -739,7 +751,17 @@ function unavailableSaved() {
 }
 
 function unavailableSavedHtml(item) {
-  return `<article class="perk saved-unavailable"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(t(item.status))}</p>${saveButtonHtml(item)}</article>`;
+  const canSave = item.record || savedPerks.some(saved => saved.id === item.id);
+  return `<article class="perk saved-unavailable"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(t(item.status))}</p>${item.record?.caution ? `<p class="caution">${escapeHtml(localizedCaution(item.record))}</p>` : ""}${canSave ? saveButtonHtml(item) : ""}</article>`;
+}
+
+function unavailableChanges() {
+  if (!catalogData || filters.confirmed) return [];
+  const labels = [...changes.unavailable].map(id => ({ id, title: previousVisit?.labels?.[id] ?? id }));
+  return savedStatus(labels, catalogData, currentResults).filter(item => {
+    const perk = item.record ?? item;
+    return searchMatches(perk, filters.query) && (filters.type === "all" || (item.record && (filters.type === "exclusive" ? perk.offer_type !== "free_tier" : perk.offer_type === filters.type)));
+  });
 }
 
 function renderToolbar() {
@@ -747,7 +769,7 @@ function renderToolbar() {
   if (!views) return;
   const labels = { all: "viewAll", new: "viewNew", changed: "viewChanged", expiring: "viewExpiring", forYou: "viewForYou", saved: "viewSaved" };
   views.innerHTML = VIEWS.map(view => {
-    const count = filterMatches(currentResults, { ...filters, view }, changes, savedPerks).length + (view === "saved" ? unavailableSaved().length : 0);
+    const count = filterMatches(currentResults, { ...filters, view }, changes, savedPerks).length + (view === "saved" ? unavailableSaved().length : view === "changed" ? unavailableChanges().length : 0);
     return `<button class="view-button" data-view="${view}" type="button" aria-pressed="${filters.view === view}"><strong>${count}</strong><span>${escapeHtml(t(labels[view]))}</span></button>`;
   }).join("");
   byId("profile-title").textContent = t("profileTitle");
@@ -830,8 +852,8 @@ function renderResults() {
   if (!container || !count) return;
   renderToolbar();
   const visible = filterMatches(currentResults, filters, changes, savedPerks);
-  const unavailable = filters.view === "saved" ? unavailableSaved() : [];
-  const total = filters.view === "saved" ? savedPerks.length : currentResults.length;
+  const unavailable = filters.view === "saved" ? unavailableSaved() : filters.view === "changed" ? unavailableChanges() : [];
+  const total = filters.view === "saved" ? savedPerks.length : currentResults.length + (filters.view === "changed" ? changes.unavailable.size : 0);
   count.textContent = total ? (currentLanguage === "ja"
     ? String(visible.length + unavailable.length) + " / " + total + "件"
     : String(visible.length + unavailable.length) + " of " + total) : "";
@@ -852,8 +874,10 @@ function renderResults() {
       : "";
     aiCard = '<article class="perk ai-take"><div class="perk-top"><div><h3>' + escapeHtml(t("annaTake")) + "</h3>"
       + '<div class="provider">' + escapeHtml(t("personalized")) + " · " + escapeHtml(currentRecommendation.title) + "</div></div>"
-      + '<div class="score">' + escapeHtml(currentRecommendation.match_score) + "% match</div></div>"
+      + '<div class="score">' + escapeHtml(currentRecommendation.match_score) + " " + escapeHtml(t("matchLabel")) + "</div></div>"
       + '<p class="why" style="margin-top:16px">' + escapeHtml(currentAiTake || localizedReason(currentRecommendation)) + "</p>"
+      + '<p class="caution"><strong>' + escapeHtml(t("headsUp")) + '</strong>' + escapeHtml(localizedCaution(currentRecommendation) || t("eligibilityNote")) + "</p>"
+      + '<p class="checked-date">' + escapeHtml(t("lastChecked")) + ": " + escapeHtml(formatDate(currentRecommendation.last_checked)) + " · " + escapeHtml(t("eligibilityNote")) + "</p>"
       + '<div class="card-actions">' + saveButtonHtml(currentRecommendation) + explainButton + "</div></article>";
   }
   container.innerHTML = catalogStatusHtml() + aiCard
@@ -946,9 +970,11 @@ async function main() {
   const storage = {
     get: args => anna.storage.get(args, { timeoutMs: 6000 }),
     set: args => anna.storage.set(args, { timeoutMs: 6000 }),
+    list: args => anna.storage.list(args, { timeoutMs: 6000 }),
   };
   let savedQueue = Promise.resolve();
-  const reads = await Promise.allSettled([KEYS.profile, KEYS.settings, KEYS.visit, KEYS.saved].map(key => storage.get({ key })));
+  let savedEpoch = 0;
+  const reads = await Promise.allSettled([... [KEYS.profile, KEYS.settings, KEYS.visit].map(key => storage.get({ key })), loadSaved(storage).then(value => ({ value }))]);
   if (reads[0].status === "fulfilled") applyProfile(normalizeProfile(reads[0].value?.value));
   if (reads[1].status === "fulfilled" && ["en", "ja"].includes(reads[1].value?.value?.language)) currentLanguage = reads[1].value.value.language;
   historyAvailable = reads[2].status === "fulfilled";
@@ -962,6 +988,19 @@ async function main() {
   setStaticText();
   profileSummary();
   status.textContent = t("ready");
+  let refreshingSaved = false;
+  window.addEventListener("focus", async () => {
+    if (refreshingSaved) return;
+    refreshingSaved = true;
+    try {
+      await savedQueue;
+      const epoch = savedEpoch;
+      const latest = await loadSaved(storage);
+      if (epoch === savedEpoch) { savedPerks = latest; savedAvailable = true; renderResults(); }
+    }
+    catch { notice(t("storageUnavailable")); }
+    finally { refreshingSaved = false; }
+  });
 
   byId("language-btn").addEventListener("click", () => {
     currentLanguage = currentLanguage === "en" ? "ja" : "en";
@@ -974,7 +1013,14 @@ async function main() {
     status.textContent = t(currentError || (scanning ? "scanning" : "ready"));
     storage.set({ key: KEYS.settings, value: { language: currentLanguage } }).catch(() => notice(t("storageFailed")));
   });
-  byId("profile-panel").addEventListener("change", profileSummary);
+  discoveryPanel = mountDiscovery({ root: byId("discovery-panel"), anna, storage, getProfile, getLanguage: () => currentLanguage });
+  byId("profile-panel").addEventListener("change", () => {
+    profileEpoch++; explanationEpoch++; explaining = false; profileSummary(); discoveryPanel.profileChanged();
+    // Never leave results from one profile under another profile's summary.
+    currentResults = []; currentRecommendation = null; currentAiTake = ""; currentAiExplained = false;
+    currentCatalog = null; catalogData = null; matchedProfile = null; currentError = "profileChanged";
+    status.textContent = t("profileChanged"); renderResults();
+  });
   byId("radar-views").addEventListener("click", event => {
     const control = event.target.closest("[data-view]");
     if (!control || !VIEWS.includes(control.dataset.view)) return;
@@ -1046,6 +1092,7 @@ async function main() {
       ?? savedPerks.find(item => item.id === id);
     if (!perk) return;
     const saved = !savedPerks.some(item => item.id === id);
+    savedEpoch++;
     savingIds.add(id);
     renderResults();
     try {
@@ -1064,6 +1111,7 @@ async function main() {
   async function runRadar() {
     if (scanning) return;
     const profile = getProfile();
+    const epoch = profileEpoch;
     explanationEpoch++;
     explaining = false;
     button.disabled = true;
@@ -1080,15 +1128,19 @@ async function main() {
     status.textContent = t("scanning");
     if (historyAvailable && savedAvailable) notice("");
     renderResults();
+    let scanStage = "catalog_fetch";
     try {
       const catalogJson = await fetchCatalog();
+      scanStage = "matcher";
       const fetchedAt = new Date().toISOString();
       const response = await anna.tools.invoke({
         tool_id: TOOL_ID, method: "find_perks", args: { ...profile, catalog_json: catalogJson },
       });
       const payload = response?.data ?? response;
+      if (epoch !== profileEpoch) return;
       if (response?.success === false || !Array.isArray(payload?.results)) throw new Error("catalog_unavailable");
       if (!payload.catalog) throw new Error("matcher_outdated");
+      scanStage = "result_display";
       currentCatalog = { ...payload.catalog, fetched_at: fetchedAt };
       catalogData = JSON.parse(catalogJson); // Only after the matcher validates the complete data.
       currentResults = payload.results;
@@ -1105,10 +1157,14 @@ async function main() {
           notice(t("storageFailed"));
         }
       }
+      if (epoch !== profileEpoch) return;
       await storage.set({ key: KEYS.profile, value: profile }).catch(() => notice(t("storageFailed")));
+      if (epoch !== profileEpoch) return;
       byId("profile-panel").open = false;
       status.textContent = t("updated");
     } catch (error) {
+      if (epoch !== profileEpoch) return;
+      console.warn("radar_search_failed", { stage: scanStage, code: error?.message === "catalog_unavailable" ? "invalid_matcher_result" : error?.message === "matcher_outdated" ? "matcher_outdated" : "unknown" });
       currentError = error.message === "matcher_outdated" ? "matcherOutdated" : "catalogUnavailable";
       currentCatalog = null;
       catalogData = null;

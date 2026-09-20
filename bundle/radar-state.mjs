@@ -4,6 +4,7 @@ export const KEYS = {
   settings: "ai-perk-radar:settings",
   visit: "ai-perk-radar:last-visit-v1",
   saved: "ai-perk-radar:saved-v1",
+  savedItem: "ai-perk-radar:saved-v2/",
 };
 export const VIEWS = ["all", "new", "changed", "expiring", "forYou", "saved"];
 const ID = /^[a-z0-9][a-z0-9-]{0,99}$/;
@@ -39,10 +40,13 @@ export function normalizeSaved(value) {
 export function normalizeVisit(value) {
   if (!value || value.schema !== 1 || !Number.isFinite(Date.parse(value.seen_at)) || !value.fingerprints || typeof value.fingerprints !== "object" || !Array.isArray(value.matched_ids)) return null;
   const fingerprints = {};
+  const labels = {}, states = {};
   for (const [id, digest] of Object.entries(value.fingerprints).slice(0, 250)) {
     if (ID.test(id) && typeof digest === "string" && /^[a-f0-9]{64}$/.test(digest)) fingerprints[id] = digest;
+    if (Object.hasOwn(fingerprints, id) && typeof value.labels?.[id] === "string") labels[id] = value.labels[id].slice(0, 160);
+    if (Object.hasOwn(fingerprints, id) && ["active", "check", "expired"].includes(value.states?.[id])) states[id] = value.states[id];
   }
-  return { schema: 1, seen_at: value.seen_at, fingerprints,
+  return { schema: 1, seen_at: value.seen_at, fingerprints, labels, states,
     matched_ids: value.matched_ids.filter(id => typeof id === "string" && ID.test(id)).slice(0, 250) };
 }
 
@@ -54,18 +58,21 @@ function canonical(value) {
 
 export async function visitSnapshot(catalog, results, seenAt = new Date().toISOString()) {
   const fingerprints = {};
+  const labels = {}, states = {};
   for (const perk of catalog.opportunities) {
     const facts = Object.fromEntries(MATERIAL_FIELDS.map(key => [key, perk[key] ?? null]));
     for (const key of ["interests", "regions"]) facts[key] = [...(facts[key] ?? [])].sort();
     const bytes = new TextEncoder().encode(JSON.stringify(canonical(facts)));
     const hash = await crypto.subtle.digest("SHA-256", bytes);
     fingerprints[perk.id] = [...new Uint8Array(hash)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+    labels[perk.id] = perk.title.slice(0, 160);
+    states[perk.id] = perk.availability === "expired" || (daysUntil(perk.deadline, seenAt.slice(0, 10)) ?? 0) < 0 ? "expired" : perk.availability;
   }
-  return { schema: 1, seen_at: seenAt, fingerprints, matched_ids: results.map(item => item.id) };
+  return { schema: 1, seen_at: seenAt, fingerprints, labels, states, matched_ids: results.map(item => item.id) };
 }
 
 export function visitChanges(previous, current) {
-  const result = { firstVisit: !previous, since: previous?.seen_at ?? null, new: new Set(), changed: new Set(), forYou: new Set() };
+  const result = { firstVisit: !previous, since: previous?.seen_at ?? null, new: new Set(), changed: new Set(), forYou: new Set(), unavailable: new Set() };
   if (!previous) return result;
   const oldMatches = new Set(previous.matched_ids);
   for (const id of current.matched_ids) {
@@ -73,6 +80,12 @@ export function visitChanges(previous, current) {
     else {
       if (previous.fingerprints[id] !== current.fingerprints[id]) result.changed.add(id);
       if (!oldMatches.has(id)) result.forYou.add(id);
+    }
+  }
+  const currentMatches = new Set(current.matched_ids);
+  for (const id of previous.matched_ids) {
+    if (!currentMatches.has(id) && (!Object.hasOwn(current.fingerprints, id) || current.states?.[id] === "expired" || previous.fingerprints[id] !== current.fingerprints[id])) {
+      result.changed.add(id); result.unavailable.add(id);
     }
   }
   return result;
@@ -131,22 +144,39 @@ export function savedStatus(saved, catalog, results, today) {
   });
 }
 
-// Rebase bookmark mutations on the current APS row to preserve other-window edits.
-export async function updateSaved(storage, change, now = new Date().toISOString()) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const current = await storage.get({ key: KEYS.saved });
-    const entries = normalizeSaved(current?.value);
-    const map = new Map(entries.map(item => [item.id, item]));
-    if (change.saved) {
-      if (!map.has(change.id) && map.size >= 250) throw new Error("saved_limit");
-      map.set(change.id, { id: change.id, title: change.title, saved_at: map.get(change.id)?.saved_at ?? now });
-    } else map.delete(change.id);
-    const value = [...map.values()];
-    try {
-      await storage.set({ key: KEYS.saved, value, ...(current?.etag ? { if_match: current.etag } : {}) });
-      return value;
-    } catch (error) {
-      if (attempt === 2 || !/precondition_failed/.test(String(error?.code ?? "") + String(error?.message ?? ""))) throw error;
+// One key per perk avoids lost independent saves when the old aggregate row did not exist.
+// Legacy bookmarks are read, never deleted; per-ID tombstones override them on removal.
+export async function loadSaved(storage) {
+  const legacy = await storage.get({ key: KEYS.saved });
+  const map = new Map(normalizeSaved(legacy?.value).map(item => [item.id, item]));
+  const cursors = new Set();
+  let cursor;
+  for (let page = 0; page < 20; page++) {
+    const result = await storage.list({ prefix: KEYS.savedItem, limit: 100, ...(cursor ? { cursor } : {}) });
+    if (!result || !Array.isArray(result.items)) throw new Error("invalid_saved_response");
+    for (const row of result.items) {
+      const item = row?.metadata;
+      if (item?.schema !== 2 || !ID.test(item.id) || row.key !== KEYS.savedItem + item.id || typeof item.saved !== "boolean"
+          || !Number.isFinite(Date.parse(item.changed_at))) continue;
+      if (!item.saved) map.delete(item.id);
+      else {
+        const valid = normalizeSaved([item])[0];
+        if (valid) map.set(item.id, valid);
+      }
     }
+    if (!result.next_cursor) return [...map.values()];
+    if (typeof result.next_cursor !== "string" || cursors.has(result.next_cursor)) throw new Error("invalid_saved_cursor");
+    cursor = result.next_cursor; cursors.add(cursor);
   }
+  throw new Error("saved_pagination_limit");
+}
+
+export async function updateSaved(storage, change, now = new Date().toISOString()) {
+  if (!ID.test(change?.id) || typeof change.title !== "string" || change.title.length > 300 || typeof change.saved !== "boolean") throw new Error("invalid_saved_change");
+  const current = await loadSaved(storage);
+  const existing = current.find(item => item.id === change.id);
+  if (change.saved && !existing && current.length >= 250) throw new Error("saved_limit");
+  const value = { schema: 2, id: change.id, title: change.title, saved: change.saved, saved_at: existing?.saved_at ?? now, changed_at: now };
+  await storage.set({ key: KEYS.savedItem + change.id, value, metadata: value });
+  return loadSaved(storage);
 }

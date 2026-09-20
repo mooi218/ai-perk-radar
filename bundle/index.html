@@ -486,6 +486,27 @@
       font-size: 12px;
     }
 
+    .discovery-shell { margin: 20px 0; padding: 18px; border: 1px solid #c8d7ce; border-radius: 18px; background: #f4f8f3; }
+    .discovery-shell > summary { cursor: pointer; font-weight: 750; color: #345643; }
+    #discovery-panel h2 { margin: 20px 0 10px; font-size: 22px; }
+    .discovery-intro, .discovery-help, .discovery-status, .discovery-consent { font-size: 13px; line-height: 1.65; color: #4c5e50; }
+    .discovery-help { font-size: 12px; }
+    .discovery-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 18px 0 8px; }
+    .discovery-controls label { font-size: 13px; font-weight: 700; }
+    .discovery-controls select { width: 100%; margin-top: 6px; }
+    .discovery-consent { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0; }
+    .discovery-consent input { flex: 0 0 auto; margin-top: 5px; }
+    .discovery-search { padding: 12px 16px; border: 0; border-radius: 12px; background: #345643; color: #fff; font-weight: 700; cursor: pointer; }
+    .discovery-search:disabled { background: #d6e1d8; color: #536052; cursor: default; }
+    .discovery-results { display: grid; gap: 14px; margin-top: 18px; }
+    .discovery-card { min-width: 0; }
+    .discovery-card h3 { margin: 12px 0 8px; overflow-wrap: anywhere; }
+    .discovery-card p { font-size: 13px; line-height: 1.65; overflow-wrap: anywhere; }
+    .candidate-badge { color: #765017; background: #fff1cd; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; }
+    .source-excerpt { margin-top: 16px; border-top: 1px solid #d6dfd3; padding-top: 12px; }
+    .source-excerpt summary, .discovery-query summary { font-size: 12px; cursor: pointer; }
+    .source-excerpt pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow-y: auto; font: 12px/1.6 system-ui, sans-serif; }
+    .source-warning { background: #fff1cd; padding: 10px; border-radius: 8px; }
     button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible {
       outline: 3px solid #5e8965; outline-offset: 3px;
     }
@@ -546,7 +567,7 @@
       >Language</button>
     </div>
 
-    <h1>Find the perks you're actually eligible for.</h1>
+    <h1>Find perks worth checking for your profile.</h1>
 
     <p class="lead">
       AI subscriptions, developer credits, student plans and early programs.
@@ -627,6 +648,11 @@
     </details>
 
     <p id="storage-notice" role="status" aria-live="polite"></p>
+
+    <details class="discovery-shell">
+      <summary id="discovery-summary">Find more with Anna · optional live search</summary>
+      <section id="discovery-panel" aria-label="Anna discovery"></section>
+    </details>
 
     <div class="results-head">
       <h2>Your matches</h2>

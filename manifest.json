@@ -4,12 +4,14 @@
     "tools.invoke",
     "storage.read",
     "storage.write",
-    "llm.complete"
+    "llm.complete",
+    "web.search",
+    "web.fetch"
   ],
   "required_executas": [
     {
       "tool_id": "bundled:matcher",
-      "version": "0.1.7"
+      "version": "0.1.8"
     }
   ],
   "tags": [
@@ -42,7 +44,8 @@
       ],
       "storage": [
         "get",
-        "set"
+        "set",
+        "list"
       ],
       "window": [
         "set_title"
@@ -50,6 +53,7 @@
       "llm": [
         "complete"
       ],
+      "web": ["search", "fetch"],
       "agent": {
         "session": {
           "auto": false,

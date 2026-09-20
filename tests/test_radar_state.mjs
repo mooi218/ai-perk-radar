@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeProfile, normalizeSaved, normalizeVisit, visitSnapshot, visitChanges,
-  daysUntil, isExpiring, needsRecheck, filterMatches, savedStatus, updateSaved } from "../bundle/radar-state.mjs";
+  daysUntil, isExpiring, needsRecheck, filterMatches, savedStatus, updateSaved, loadSaved, KEYS } from "../bundle/radar-state.mjs";
 
 const perk = (id, extra = {}) => ({ id, title: id, provider: "Example", value_display: "Free", reason: "Current terms", why: "Matched", regions: ["GLOBAL"], interests: ["coding"],
   offer_type: "free_tier", availability: "active", last_checked: "2026-09-01", localizations: { ja: { reason: "学習向け" } }, ...extra });
@@ -40,6 +40,26 @@ test("source rechecks, ranking changes, ordering, and publication dates do not m
   assert.equal(visitChanges(before, await visitSnapshot(catalog([revised]), [revised])).changed.size, 1);
 });
 
+test("changed view retains removed, expired and newly-ineligible prior matches without false profile-only changes", async () => {
+  const beforeItems = [perk("removed"), perk("expired"), perk("restricted"), perk("profile-only")];
+  const before = await visitSnapshot(catalog(beforeItems), beforeItems, "2026-09-01T00:00:00Z");
+  const afterItems = [perk("expired", { availability: "expired" }), perk("restricted", { student_required: true }), perk("profile-only")];
+  const after = await visitSnapshot(catalog(afterItems), [], "2026-09-20T00:00:00Z");
+  const changes = visitChanges(before, after);
+  assert.deepEqual([...changes.changed].sort(), ["expired", "removed", "restricted"]);
+  assert.deepEqual([...changes.unavailable].sort(), ["expired", "removed", "restricted"]);
+  assert.equal(before.labels.removed, "removed");
+  assert.equal(normalizeVisit(before).labels.removed, "removed");
+});
+
+test("elapsed deadline is surfaced even when catalog facts were not edited", async () => {
+  const item = perk("deadline", { deadline: "2026-09-10" });
+  const before = await visitSnapshot(catalog([item]), [item], "2026-09-10T00:00:00Z");
+  const after = await visitSnapshot(catalog([item]), [], "2026-09-11T00:00:00Z");
+  assert.equal(before.fingerprints.deadline, after.fingerprints.deadline);
+  assert.ok(visitChanges(before, after).unavailable.has("deadline"));
+});
+
 test("deadline filters include today and exactly 30 days, exclude expired and undated entries", () => {
   const today = "2026-09-10";
   assert.equal(daysUntil("2026-09-10", today), 0);
@@ -65,26 +85,32 @@ test("saved labels distinguish unavailable, expired, not-matching and never-refr
   assert.ok(savedStatus(savedItems, null, []).every(p => p.status === "needsRefresh"));
 });
 
-test("APS bookmarks rebase after an etag conflict and keep another window's save", async () => {
-  let value = [saved("existing")];
-  let generation = 1;
-  let calls = 0;
+test("per-ID APS records preserve legacy data and concurrent first-time saves from two windows", async () => {
+  const rows = new Map();
   const storage = {
-    get: async () => ({ value, exists: true, etag: String(generation) }),
-    set: async args => {
-      if (++calls === 1) { value = [...value, saved("other-window")]; generation++; throw new Error("precondition_failed"); }
-      assert.equal(args.if_match, String(generation));
-      value = args.value;
-    },
+    get: async () => ({ value: [saved("existing")], exists: true }),
+    list: async () => ({ items: [...rows.values()], next_cursor: null }),
+    set: async args => { rows.set(args.key, { key: args.key, metadata: args.metadata }); },
   };
-  const result = await updateSaved(storage, { id: "new", title: "New perk", saved: true });
-  assert.deepEqual(result.map(p => p.id), ["existing", "other-window", "new"]);
+  await Promise.all([updateSaved(storage, { id: "first", title: "First", saved: true }), updateSaved(storage, { id: "second", title: "Second", saved: true })]);
+  assert.deepEqual((await loadSaved(storage)).map(p => p.id).sort(), ["existing", "first", "second"]);
   await updateSaved(storage, { id: "existing", title: "Existing", saved: false });
-  assert.deepEqual(value.map(p => p.id), ["other-window", "new"]);
+  assert.deepEqual((await loadSaved(storage)).map(p => p.id).sort(), ["first", "second"]);
+  assert.equal(rows.get(KEYS.savedItem + "existing").metadata.saved, false);
+});
+
+test("saved-record pagination follows cursors and does not silently accept malformed or endless responses", async () => {
+  const meta = id => ({ schema: 2, ...saved(id), saved: true, changed_at: "2026-09-20T00:00:00Z" });
+  const storage = { get: async () => ({ exists: false }), list: async args => args.cursor
+    ? { items: [{ key: KEYS.savedItem + "second", metadata: meta("second") }], next_cursor: null }
+    : { items: [{ key: KEYS.savedItem + "first", metadata: meta("first") }], next_cursor: "page-two" } };
+  assert.equal((await loadSaved(storage)).length, 2);
+  storage.list = async () => ({ items: [], next_cursor: "same" });
+  await assert.rejects(loadSaved(storage), /invalid_saved_cursor/);
 });
 
 test("failed persistence is surfaced instead of claiming a save succeeded", async () => {
-  await assert.rejects(updateSaved({ get: async () => ({ exists: false }), set: async () => { throw new Error("quota_exceeded"); } }, { id: "a", title: "A", saved: true }), /quota_exceeded/);
+  await assert.rejects(updateSaved({ get: async () => ({ exists: false }), list: async () => ({ items: [], next_cursor: null }), set: async () => { throw new Error("quota_exceeded"); } }, { id: "a", title: "A", saved: true }), /quota_exceeded/);
 });
 
 test("restoration rejects corrupt state and ignores unknown profile fields", () => {

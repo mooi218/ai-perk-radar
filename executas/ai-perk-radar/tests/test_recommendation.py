@@ -41,10 +41,24 @@ def candidate(
         "_ranking_score": ranking_score,
         "_value_score": value_score,
         "availability": availability,
+        "last_checked": matcher.utc_today().isoformat(),
     }
 
 
 class RecommendationTests(unittest.TestCase):
+    def test_stale_or_missing_verification_cannot_win_recommendation(self):
+        stale = candidate("stale", 99, 150, 100)
+        stale["last_checked"] = "2000-01-01"
+        fresh = candidate("fresh", 90, 90, 80)
+        self.assertEqual(matcher.select_recommendation([stale, fresh])["id"], "fresh")
+        del stale["last_checked"]
+        self.assertIsNone(matcher.select_recommendation([stale]))
+
+    def test_unannounced_is_not_claimed_current_and_eligibility_is_not_guaranteed(self):
+        self.assertEqual(matcher.freshness_label(None), "Unknown")
+        result = matcher.find_perks(REVIEW_PROFILE)
+        self.assertNotIn("student eligibility", result["recommended"]["why"])
+
     def test_99_percent_match_always_beats_90_percent(self):
         results = [
             candidate("google-ai-plus", 90, 90, 75),

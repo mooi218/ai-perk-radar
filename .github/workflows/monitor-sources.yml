@@ -1,0 +1,95 @@
+name: Monitor official sources
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 */6 * * *"
+  pull_request:
+    paths:
+      - scripts/source_monitor.py
+      - tests/test_source_monitor.py
+      - monitoring/sources.json
+      - .github/workflows/monitor-sources.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-monitor-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Test source monitor without network
+        run: python -m unittest discover -s tests -p test_source_monitor.py -v
+      - name: Validate the current catalog
+        run: python scripts/check_catalog.py
+      # PRs run offline tests only. Forks cannot seed the default-branch cache.
+      - name: Restore last successful source observations
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: actions/cache/restore@v4
+        with:
+          path: .source-monitor/state.json
+          key: source-monitor-v1-${{ hashFiles('scripts/source_monitor.py', 'monitoring/sources.json') }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            source-monitor-v1-${{ hashFiles('scripts/source_monitor.py', 'monitoring/sources.json') }}-
+      - name: Observe official sources
+        id: scan
+        if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        shell: bash
+        run: |
+          set +e
+          python scripts/source_monitor.py
+          result=$?
+          echo "exit_code=$result" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Save reusable observations under a new run key
+        if: steps.scan.outputs.exit_code == '0' || steps.scan.outputs.exit_code == '2' || steps.scan.outputs.exit_code == '3'
+        uses: actions/cache/save@v4
+        with:
+          path: .source-monitor/state.json
+          key: source-monitor-v1-${{ hashFiles('scripts/source_monitor.py', 'monitoring/sources.json') }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Upload report and state for review
+        if: always() && steps.scan.outputs.exit_code != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-source-observations-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .source-monitor/*.json
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Summarize observation coverage
+        if: steps.scan.outputs.exit_code == '0' || steps.scan.outputs.exit_code == '2' || steps.scan.outputs.exit_code == '3'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          report = json.loads(Path('.source-monitor/report.json').read_text(encoding='utf-8'))
+          counts = report['summary']
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as output:
+              output.write('Official-source observations (not offer verification)\n\n')
+              output.write(f"Observed pages: {counts['observed_sources']}; manual review required: {counts['manual_required']}; fetch/policy errors: {counts['source_errors']}; stale or never observed: {counts['stale_sources']}.\n\n")
+              output.write(f"Changed pages: {counts['changed']}; unregistered listing candidates: {counts['unregistered_candidates']}. Download the report artifact for source-by-source details.\n\n")
+              if report['baseline_status'] == 'initial':
+                  output.write('Initial baseline: these observations do not establish what is newly announced or when existing terms changed.\n')
+          PY
+      - name: Surface incomplete observations
+        if: steps.scan.outputs.exit_code != ''
+        shell: bash
+        run: |
+          if [ '${{ steps.scan.outputs.exit_code }}' = '2' ]; then
+            echo '::warning::Partial source coverage. Review the job summary and downloadable report for manual-review gaps and fetch errors. Catalog verification dates were not changed.'
+          elif [ '${{ steps.scan.outputs.exit_code }}' != '0' ]; then
+            echo '::error::The source monitor failed or could not observe any source. Review the report or logs; existing successful snapshots were retained.'
+            exit 1
+          fi

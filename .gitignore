@@ -15,6 +15,7 @@ build/
 # Anna local/generated
 .anna/
 bundle/anna-tool-ids.js
+.source-monitor/
 
 # Backups
 backups/

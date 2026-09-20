@@ -14,6 +14,18 @@ The v0.1.7 app remembers your profile and language, saved perk IDs/titles and sa
 
 In v0.1.7, a language-model explanation is requested only when you click the Anna explanation button. It receives the profile used for matching and the single selected perk, and uses the Anna account's available model and quota. Saved lists and visit history are not sent to the model.
 
+## Optional discovery in v0.1.8
+
+The v0.1.8 update adds an optional Anna Web search. It does not run when the app opens, when a profile changes, or when you refresh the maintained catalog. You must acknowledge the search terms and usage notice, and Anna must also grant Web access. Search and page retrieval consume Anna Web credits; discovery does not call an LLM. The separate Anna explanation button remains optional.
+
+When you start discovery, selected country, role and topic words are sent through Anna to its search provider. No name, email, saved-perk list or arbitrary private notes are included. Reading a selected source sends that page's URL to Anna's managed page-fetch service. Provider sites may receive normal server-side request metadata. Their privacy practices, and Anna's, apply.
+
+The last successful search's terms, topic, period, retrieval time and at most six source links/titles/snippets are stored in your private Anna App bucket with a seven-day expiry request. The app also rejects older results on restoration. Retrieved full page text is kept only in the open window, not in this cache. Restored results are explicitly labeled as saved results, not a fresh verification.
+
+Saved perks in v0.1.8 use one private record per perk to avoid losing simultaneous saves from separate windows. Removing a saved perk removes it from the displayed list and records a removal marker so older saved-list entries do not reappear; it does not erase all historical storage records. Previous-visit data also includes short titles and availability states so removed or ended offers can be shown as changes. These records are not sent to search providers or the LLM.
+
+The maintainer's scheduled source monitor visits only public official-source URLs. It receives no app user profiles or saved/search histories and makes no Anna or LLM calls. It reports observations to the maintainer; it cannot edit verified catalog facts automatically.
+
 ## Data collection and sharing
 
 AI Perk Radar does not independently sell personal information to advertisers or data brokers.
