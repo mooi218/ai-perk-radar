@@ -1,9 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import { DiscoveryController, DISCOVERY_KEY, searchSpec, sourceUrl, cleanResults, cleanPage, restoreDiscovery, contextKey } from "../bundle/discovery.mjs";
 
 const profile = () => ({ country: "JP", student: true, researcher: false, developer: true, creator: false, founder: false, priority: "free", interests: ["ai", "coding"], limited_only: false });
 const offer = { title: "Student offer <script>alert(1)</script>", url: "https://blog.google/technology/ai/student-offer/", snippet: "Provider conditions apply." };
+
+test("Web methods are declared through Anna's host API ACL, without unsupported top-level permissions or Agent sessions", () => {
+  const manifest = JSON.parse(readFileSync(new URL("../manifest.json", import.meta.url), "utf8"));
+  assert.deepEqual(manifest.ui.host_api.web, ["search", "fetch"]);
+  assert.deepEqual(manifest.permissions, ["tools.invoke", "storage.read", "storage.write", "llm.complete"]);
+  assert.equal(manifest.ui.host_api.agent.session.auto, false);
+  assert.equal(manifest.ui.host_api.agent.session.fixed, null);
+  assert.ok(manifest.ui.host_api.storage.includes("list"));
+});
 function harness(overrides = {}) {
   let value, calls = 0, context = { profile: profile(), options: { topic: "ai", period: "month" } };
   const storage = { get: async () => ({ value }), set: async args => { assert.equal(args.key, DISCOVERY_KEY); value = args.value; } };

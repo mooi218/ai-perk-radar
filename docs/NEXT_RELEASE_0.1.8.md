@@ -30,7 +30,7 @@ APS is private per user, not a global catalog store. Shared catalog publication 
 ## Verification record
 
 - Source tests:27 Node tests,15 matcher/protocol Python tests, and21 offline monitor tests passed (63 total).
-- Strict Anna manifest validation passed with `web.search` / `web.fetch` and storage `list` explicitly declared.
+- Strict Anna manifest validation passed. The first production draft push rejected `web.search` / `web.fetch` as top-level audit permission names. They were removed from that list; the effective declaration remains `ui.host_api.web: ["search", "fetch"]` with Anna's independent user Web grant. Storage `list` is explicitly declared. A regression test now checks this boundary.
 - Actual bundle tested in a local browser harness with100-entry catalog and real source matcher:98 student/developer matches, AWS99 fit points with caution,37 nonstudent/developer matches, Codédex accented search, independent saved record and Japanese restoration, old-condition clearing, and discovery restoration with consent reset.
 - The local harness mocks Anna Web/APS/LLM, so these results do not certify a live Anna Web grant, charge or production storage round trip. Mocked candidate pages are explicitly labeled local-test content.
 - Keyboard search keeps focus on the result status and announces the count. Hostile mock markup renders as text. Partial source retrieval is visibly marked.420px width checked without horizontal overflow; viewport reset afterward.

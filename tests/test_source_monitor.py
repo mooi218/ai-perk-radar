@@ -12,6 +12,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import source_monitor as monitor
 
 NOW = "2026-09-20T12:00:00Z"
+
+
+class WorkflowArtifactTests(unittest.TestCase):
+    def test_hidden_monitor_directory_is_explicitly_included_and_only_report_files_are_uploaded(self):
+        workflow = (Path(__file__).resolve().parents[1] / ".github/workflows/monitor-sources.yml").read_text(encoding="utf-8")
+        self.assertIn("include-hidden-files: true", workflow)
+        self.assertIn(".source-monitor/report.json", workflow)
+        self.assertIn(".source-monitor/state.json", workflow)
+        self.assertIn("if-no-files-found: error", workflow)
+        self.assertNotIn(".source-monitor/*.json", workflow)
 OLD = "2026-09-18T12:00:00Z"
 PACK = "https://education.github.com/pack"
 HOSTS = ["education.github.com", "example.com"]

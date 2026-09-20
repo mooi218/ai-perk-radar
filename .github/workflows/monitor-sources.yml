@@ -63,9 +63,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: official-source-observations-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .source-monitor/*.json
+          path: |
+            .source-monitor/report.json
+            .source-monitor/state.json
+          include-hidden-files: true
           retention-days: 30
-          if-no-files-found: warn
+          if-no-files-found: error
       - name: Summarize observation coverage
         if: steps.scan.outputs.exit_code == '0' || steps.scan.outputs.exit_code == '2' || steps.scan.outputs.exit_code == '3'
         shell: bash

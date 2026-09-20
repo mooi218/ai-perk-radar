@@ -4,9 +4,7 @@
     "tools.invoke",
     "storage.read",
     "storage.write",
-    "llm.complete",
-    "web.search",
-    "web.fetch"
+    "llm.complete"
   ],
   "required_executas": [
     {
