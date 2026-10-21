@@ -1,7 +1,8 @@
 """Detect official-source changes without models or factual verification.
 
-Only hashes, short titles and official source links survive a scan. See
-docs/SOURCE_MONITOR.md for the report/state contract and crawl policy.
+By default only hashes, short titles and official source links survive a scan.
+Opt-in review reports include bounded, untrusted excerpts; state remains hash-only.
+See docs/SOURCE_MONITOR.md for the report/state contract and crawl policy.
 """
 from __future__ import annotations
 
@@ -16,6 +17,7 @@ import re
 import socket
 import ssl
 import sys
+import tempfile
 import threading
 import time
 import unicodedata
@@ -272,6 +274,7 @@ class SafeFetcher:
         self.clock, self.sleep = clock, sleep
         self.deadline = clock() + max_seconds
         self.policies, self.last_request = {}, {}
+        self.request_attempts, self.response_bytes = 0, 0
 
     def _request(self, url, delay=2, max_bytes=MAX_BODY):
         host = urlsplit(url).hostname
@@ -281,8 +284,11 @@ class SafeFetcher:
         if wait:
             self.sleep(wait)
         self.last_request[host] = self.clock()
-        return self.request(url, self.allowed_hosts, timeout=min(20, self.deadline - self.clock()),
-                            max_bytes=max_bytes)
+        self.request_attempts += 1
+        response = self.request(url, self.allowed_hosts, timeout=min(20, self.deadline - self.clock()),
+                                max_bytes=max_bytes)
+        self.response_bytes += len(response.body)
+        return response
 
     def policy(self, host):
         if host not in self.policies:
@@ -454,6 +460,28 @@ def extract_terms(document, source):
     return {"page": {"title": headings[0][:120], "hash": digest(text), "source_url": source["url"]}}
 
 
+def review_excerpts(document, adapter):
+    """Bounded, untrusted excerpts for human review; never factual extraction."""
+    if adapter == "github_pack":
+        result = {}
+        for card in document.root.nodes():
+            if "pack-offer-card" not in (card.attrs.get("class") or "").split():
+                continue
+            heading = next(node for node in card.nodes() if node.tag == "h3")
+            paragraphs = []
+            for section in card.nodes():
+                children = [child for child in section.children if isinstance(child, Node)]
+                if any(child.tag == "h5" and child.text().startswith("Offer") for child in children):
+                    paragraphs.extend(child.text() for child in children if child.tag == "p")
+            result[heading.attrs["id"]] = normalized(" ".join(paragraphs))
+        return result
+    mains = [node for node in document.root.nodes()
+             if node.tag == "main" or node.attrs.get("role") == "main"]
+    if not mains:
+        mains = [node for node in document.root.nodes() if node.tag == "article"]
+    return {"page": mains[0].text()}
+
+
 def read_json(path):
     require(path.stat().st_size <= MAX_JSON, "invalid_json", "JSON file exceeds size limit")
 
@@ -536,7 +564,7 @@ def load_state(path, allowed_hosts, now):
     return state
 
 
-def scan(catalog, config, state, fetcher, now):
+def scan(catalog, config, state, fetcher, now, *, include_review_excerpts=False):
     sources, rejected = {}, []
     for perk in catalog["opportunities"]:
         try:
@@ -588,6 +616,8 @@ def scan(catalog, config, state, fetcher, now):
                 if status != "unchanged" or adapter == "github_pack" and not associated:
                     report["items"].append({"id": item_id, "title": item["title"], "source_url": item["source_url"],
                                             "status": status, "catalog_ids": associated,
+                                            "content_hash": item["hash"],
+                                            "previous_content_hash": previous["hash"] if previous else None,
                                             "unregistered_candidate": adapter == "github_pack" and not associated})
             missing = sorted(previous_items.keys() - items.keys())
             for item_id in missing:
@@ -597,6 +627,12 @@ def scan(catalog, config, state, fetcher, now):
             # An omitted card may be server-side partial rendering. Keep the
             # last complete baseline until its absence is independently reviewed.
             require(not missing, "listing_incomplete", "Previously seen offers are absent; availability is unknown")
+            if include_review_excerpts:
+                excerpts = review_excerpts(document, adapter)
+                for item in report["items"]:
+                    text = excerpts[item["id"]]
+                    item["evidence_excerpt"] = text[:600]
+                    item["excerpt_truncated"] = len(text) > 600
             content_hash = digest(items)
             report["content_hash"] = content_hash
             report["status"] = "baseline" if not prior else "unchanged" if content_hash == prior["content_hash"] else "changed"
@@ -626,9 +662,15 @@ def scan(catalog, config, state, fetcher, now):
 
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(path.name + ".tmp")
-    temporary.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    temporary.replace(path)
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                     prefix="." + path.name + ".", suffix=".tmp", delete=False) as output:
+        temporary = Path(output.name)
+        output.write(json.dumps(value, indent=2, ensure_ascii=False) + "\n")
+    try:
+        temporary.replace(path)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
 
 
 def main(argv=None):
@@ -638,6 +680,8 @@ def main(argv=None):
     parser.add_argument("--state", type=Path, default=ROOT / ".source-monitor/state.json")
     parser.add_argument("--output", type=Path, default=ROOT / ".source-monitor/report.json")
     parser.add_argument("--state-output", type=Path, default=ROOT / ".source-monitor/state.json")
+    parser.add_argument("--include-review-excerpts", action="store_true",
+                        help="Save at most 600 characters of untrusted source text per review item")
     args = parser.parse_args(argv)
     now = utc_now()
     try:
@@ -650,9 +694,15 @@ def main(argv=None):
         config = load_config(args.sources)
         catalog, _ = parse_catalog(args.catalog.read_text(encoding="utf-8"))
         state = load_state(args.state, config["allowed_hosts"], now)
-        report, next_state = scan(catalog, config, state, SafeFetcher(config["allowed_hosts"]), now)
+        started = time.monotonic()
+        fetcher = SafeFetcher(config["allowed_hosts"])
+        report, next_state = scan(catalog, config, state, fetcher, now,
+                                  include_review_excerpts=args.include_review_excerpts)
         next_state["generated_at"] = utc_now()
         report["completed_at"] = next_state["generated_at"]
+        report["metrics"] = {"elapsed_seconds": round(time.monotonic() - started, 3),
+                             "request_attempts": fetcher.request_attempts,
+                             "response_bytes": fetcher.response_bytes}
         write_json(args.output, report)
         write_json(args.state_output, next_state)
         print(json.dumps(report["summary"], sort_keys=True))

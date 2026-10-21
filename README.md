@@ -46,3 +46,7 @@ The next version adds explicit, tool-only discovery through Anna Web, separate f
 This version also retains ended/removed prior matches in Changed, excludes stale records from the top recommendation, shows eligibility caveats with that recommendation, rejects old-profile responses, and uses independent APS bookmark records to preserve concurrent first saves. See [v0.1.8 notes](docs/NEXT_RELEASE_0.1.8.md) for validation and deployment status.
 
 The separate [official-source monitor](docs/SOURCE_MONITOR.md) discovers unregistered listing entries and observes page changes every six hours through a read-only repository workflow. It uses no LLM and never advances verification dates or publishes catalog edits. Unsupported/blocked sources require manual review; background monitoring is not a promise that all offers were freshly verified.
+
+The [source review pipeline](docs/SOURCE_REVIEW.md) adds candidate JSON and a
+static HTML preview to that same workflow. Official source evidence remains
+unverified until a human checks it; the pipeline has no catalog-writing step.

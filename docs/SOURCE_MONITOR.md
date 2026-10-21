@@ -28,8 +28,13 @@ it cannot decide whether a change is material to a benefit. Unsupported layouts
 or pages requiring JavaScript are reported as unknown and need a reviewed
 source-specific adapter or interactive review through Anna.
 
-No raw page or full terms are saved. Output retains hashes, titles (at most 120
-characters), official source URLs and observation metadata. Discovered outgoing
+No raw page is saved. By default output retains hashes, titles (at most 120
+characters), official source URLs and observation metadata. The optional
+`--include-review-excerpts` flag retains at most 600 characters of untrusted
+normalized offer/main text per review item. It never saves those excerpts to
+the reusable state, executes source text, or infers facts from it. A short offer
+paragraph can fit within the bound, but broad page excerpts are usually partial
+and do not replace full official-source review. Discovered outgoing
 links are never crawled; offer links are generated from the allowlisted listing
 URL and a validated fragment ID.
 
@@ -111,6 +116,12 @@ The JSON report contains:
   listing scan with `unregistered_candidate: true`, including unchanged cards.
   Missing cards have `status: unknown` and
   `reason: missing_from_listing_not_confirmed_ended`.
+  Accepted items also include current and previous item hashes; optional review
+  excerpts include a truncation flag. These are additive schema-1 report fields;
+  the parser version and reusable state contract are unchanged.
+- `metrics`: elapsed scan seconds, attempted HTTP requests and received response
+  body bytes. Requests include robots checks and redirects. These measurements
+  describe an individual scan.
 
 The separate state contains the schema/parser versions, `generated_at`, and a
 source-keyed map of adapter, `fetched_at`, aggregate `content_hash`, and item
@@ -136,6 +147,9 @@ persistent JavaScript/robots limitation. Scanner/input failures and runs with
 zero usable sources fail the workflow. The report retains every source error;
 a successful workflow is not a claim of complete coverage or verified offers.
 There is no separate message sender.
+The workflow now runs `scripts/source_review.py` after a completed scan and
+uploads `review.json` and a static, escaped `review.html` alongside the existing
+report/state. No second schedule is added. See [review pipeline](SOURCE_REVIEW.md).
 GitHub runner, cache and artifact usage remains subject to the repository's
 existing Actions allocation; no paid service or billing setting is enabled here.
 

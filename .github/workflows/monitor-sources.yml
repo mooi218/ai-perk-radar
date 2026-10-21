@@ -8,6 +8,8 @@ on:
     paths:
       - scripts/source_monitor.py
       - tests/test_source_monitor.py
+      - scripts/source_review.py
+      - tests/test_source_review.py
       - monitoring/sources.json
       - .github/workflows/monitor-sources.yml
 
@@ -31,6 +33,8 @@ jobs:
           python-version: "3.12"
       - name: Test source monitor without network
         run: python -m unittest discover -s tests -p test_source_monitor.py -v
+      - name: Test review pipeline without network
+        run: python -m unittest discover -s tests -p test_source_review.py -v
       - name: Validate the current catalog
         run: python scripts/check_catalog.py
       # PRs run offline tests only. Forks cannot seed the default-branch cache.
@@ -48,10 +52,13 @@ jobs:
         shell: bash
         run: |
           set +e
-          python scripts/source_monitor.py
+          python scripts/source_monitor.py --include-review-excerpts
           result=$?
           echo "exit_code=$result" >> "$GITHUB_OUTPUT"
           exit 0
+      - name: Prepare review-only candidates and offline preview
+        if: steps.scan.outputs.exit_code == '0' || steps.scan.outputs.exit_code == '2' || steps.scan.outputs.exit_code == '3'
+        run: python scripts/source_review.py
       - name: Save reusable observations under a new run key
         if: steps.scan.outputs.exit_code == '0' || steps.scan.outputs.exit_code == '2' || steps.scan.outputs.exit_code == '3'
         uses: actions/cache/save@v4
@@ -66,6 +73,8 @@ jobs:
           path: |
             .source-monitor/report.json
             .source-monitor/state.json
+            .source-monitor/review.json
+            .source-monitor/review.html
           include-hidden-files: true
           retention-days: 30
           if-no-files-found: error

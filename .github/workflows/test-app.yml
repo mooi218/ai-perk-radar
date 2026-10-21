@@ -7,6 +7,8 @@ on:
       - executas/ai-perk-radar/**
       - tests/**
       - manifest.json
+      - scripts/source_review.py
+      - scripts/source_monitor.py
       - .github/workflows/test-app.yml
   pull_request:
   workflow_dispatch:
@@ -29,4 +31,5 @@ jobs:
       - run: node --test tests/*.mjs
       - run: python -m unittest discover -s executas/ai-perk-radar/tests -v
       - run: python -m unittest discover -s tests -p test_source_monitor.py -v
+      - run: python -m unittest discover -s tests -p test_source_review.py -v
       - run: python scripts/check_catalog.py
