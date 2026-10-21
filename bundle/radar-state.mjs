@@ -1,3 +1,4 @@
+// Modified by Umoy / MoyPico Studio
 // Persist visit metadata and saved labels, never a stale copy of offer terms.
 export const KEYS = {
   profile: "ai-perk-radar:last-profile",
@@ -115,6 +116,17 @@ export function searchMatches(perk, query) {
   const haystack = fold([perk.title, perk.provider, perk.value_display, perk.why ?? perk.reason,
     perk.caution, ...Object.values(perk.localizations?.ja ?? {})].join(" "));
   return fold(query).trim().split(/\s+/).every(word => haystack.includes(word));
+}
+
+// Match the engine's eligibility gates without the deadline-only setting.
+// Counts explain the current catalog; they do not add or verify any offers.
+export function deadlineCoverage(catalog, profile, today = new Date().toISOString().slice(0, 10)) {
+  const matching = (catalog?.opportunities ?? []).filter(perk =>
+    perk.availability !== "expired" && (daysUntil(perk.deadline, today) ?? 0) >= 0
+    && (perk.regions.includes("GLOBAL") || perk.regions.includes(profile.country))
+    && (!perk.student_required || profile.student)
+    && (!perk.researcher_required || profile.researcher));
+  return { total: matching.length, dated: matching.filter(perk => Boolean(perk.deadline)).length };
 }
 
 export function filterMatches(results, { view = "all", query = "", type = "all", confirmed = false } = {}, changes, saved = [], today) {

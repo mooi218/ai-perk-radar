@@ -1,9 +1,10 @@
+// Modified by Umoy / MoyPico Studio
 import { AnnaAppRuntime } from "/static/anna-apps/_sdk/latest/index.js";
 import { buildRecommendationPrompt } from "./recommendation.mjs";
 import { fetchCatalog, localizedField } from "./catalog.mjs";
 import { mountDiscovery } from "./discovery-panel.mjs";
 import { KEYS, VIEWS, normalizeProfile, normalizeSaved, normalizeVisit, visitSnapshot, visitChanges,
-  daysUntil, isExpiring, needsRecheck, filterMatches, searchMatches, savedStatus, updateSaved, loadSaved } from "./radar-state.mjs";
+  daysUntil, isExpiring, needsRecheck, deadlineCoverage, filterMatches, searchMatches, savedStatus, updateSaved, loadSaved } from "./radar-state.mjs";
 
 const EXECUTA_HANDLE = "matcher";
 
@@ -38,6 +39,7 @@ let explaining = false;
 let matchedProfile = null;
 let discoveryPanel = null;
 let profileEpoch = 0;
+let profileRestored = false;
 const savingIds = new Set();
 
 let exclusiveLimit = INITIAL_LIMIT;
@@ -45,6 +47,21 @@ let freeLimit = INITIAL_LIMIT;
 
 const TEXT = {
   en: {
+    // Profile guidance, deadline explanations, and saved-perk navigation.
+    rolesHelp: "You can select more than one. Choose University student only if you are currently enrolled.",
+    profileHint: "Choose the roles that apply. Your choices are saved when you search.",
+    profileRestored: "Your saved profile was restored. Review your choices before searching.",
+    limitedHelp: "Uses the catalog's published cutoff date. Some profiles have no offers with a dated deadline.",
+    deadlineEmpty: "No offers with a published deadline match this profile in {region}. With the deadline filter off, {count} catalog offers match.",
+    includeUndated: "Include offers without a deadline",
+    editProfile: "Review profile",
+    savedLibrary: "Saved perks",
+    browsePerks: "Browse perks",
+    savedCurrentNote: "Saved perks stay here even when they no longer match this profile. You can remove them at any time.",
+    savedRefreshNote: "Your saved names are shown below. Use Find my perks to check their current details.",
+    savedUnavailable: "Saved perks could not be loaded. Reopen AI Perk Radar to try again.",
+    removeSaved: "Remove",
+    removeSavedLabel: "Remove from saved perks",
     eyebrow: "Fresh opportunities / verified sources",
     hero: "Find perks worth checking for your profile.",
     lead:
@@ -72,7 +89,7 @@ const TEXT = {
     cloud: "Cloud",
     research: "Research",
 
-    limited: "Show only time-limited offers",
+    limited: "Only offers with a published deadline",
     find: "Find my perks",
 
     ready: "Ready.",
@@ -126,7 +143,7 @@ const TEXT = {
     firstVisit: "Your first search sets a baseline. New and changed perks will be highlighted on your next visit or refresh.",
     sinceVisit: "Compared with your last visit", historyUnavailable: "Visit history is unavailable. Matching still works.",
     noFiltered: "No perks match this view. Try another view or clear the filters.",
-    savedEmpty: "Save a perk to keep track of it here. Each search reads the latest maintained catalog; source-check dates are shown separately.",
+    savedEmpty: "No saved perks yet. Use ☆ Save on a perk, then return with the Saved perks button at the top.",
     save: "Save", saved: "Saved", saving: "Saving…", savedDone: "Saved perks updated.",
     storageFailed: "Your preferences or saved perks could not be saved. Please try again.",
     storageUnavailable: "Some saved preferences could not be loaded. You can still search for perks.",
@@ -139,13 +156,27 @@ const TEXT = {
     showMore: "Show more",
     showLess: "Show less",
 
-    noMatches:
-      "No strong matches yet. Try changing your filters.",
+    noMatches: "No catalog offers match this profile. Review your country and role choices.",
 
     switchLanguage: "\u65e5\u672c\u8a9e",
   },
 
   ja: {
+    // Profile guidance, deadline explanations, and saved-perk navigation.
+    rolesHelp: "当てはまる項目を複数選べます。大学生は、現在在籍している場合のみ選択してください。",
+    profileHint: "当てはまる項目を選んでください。検索時に選択内容を保存します。",
+    profileRestored: "保存したプロフィールを復元しました。検索前に選択内容を確認してください。",
+    limitedHelp: "カタログに記載された締切日で絞り込みます。条件によっては、締切日のある特典がありません。",
+    deadlineEmpty: "{region}で、このプロフィールに合う申込期限付きの特典はありません。期限の絞り込みを外すと、カタログ内の{count}件が候補になります。",
+    includeUndated: "申込期限の絞り込みを外して検索",
+    editProfile: "プロフィールを確認",
+    savedLibrary: "保存した特典",
+    browsePerks: "特典を探す画面へ",
+    savedCurrentNote: "プロフィールに合わなくなった特典も、保存を解除するまでここに残ります。",
+    savedRefreshNote: "保存した特典名を表示しています。「使える特典を探す」で現在の内容を確認できます。",
+    savedUnavailable: "保存した特典を読み込めませんでした。AI Perk Radarを開き直してお試しください。",
+    removeSaved: "解除",
+    removeSavedLabel: "保存を解除",
     eyebrow: "\u6700\u65b0\u7279\u5178 / \u516c\u5f0f\u60c5\u5831\u3092\u78ba\u8a8d\u6e08\u307f",
     hero: "あなたの条件に合いそうな特典を見つけます。",
     lead:
@@ -173,7 +204,7 @@ const TEXT = {
     cloud: "\u30af\u30e9\u30a6\u30c9",
     research: "\u7814\u7a76",
 
-    limited: "\u671f\u9593\u9650\u5b9a\u306e\u7279\u5178\u3060\u3051\u8868\u793a",
+    limited: "申込期限が明記された特典のみ",
     find: "\u4f7f\u3048\u308b\u7279\u5178\u3092\u63a2\u3059",
 
     ready: "\u6e96\u5099\u5b8c\u4e86",
@@ -227,7 +258,7 @@ const TEXT = {
     firstVisit: "初回の検索を比較の基準にします。次の訪問や更新から、新着・変更のある特典が分かります。",
     sinceVisit: "前回の訪問と比較", historyUnavailable: "訪問履歴を読み込めませんでした。特典の検索は利用できます。",
     noFiltered: "この絞り込みに合う特典はありません。別の表示に切り替えるか、絞り込みを解除してください。",
-    savedEmpty: "気になる特典を保存して、最新のカタログで確認できます。各提供元を確認した日はカードに別途表示します。",
+    savedEmpty: "保存した特典はまだありません。カードの「☆ 保存」を押すと、上部の「保存した特典」から見返せます。",
     save: "保存", saved: "保存済み", saving: "保存中…", savedDone: "保存した特典を更新しました。",
     storageFailed: "設定や特典を保存できませんでした。もう一度お試しください。",
     storageUnavailable: "保存した設定の一部を読み込めませんでした。特典の検索は利用できます。",
@@ -240,8 +271,7 @@ const TEXT = {
     showMore: "\u3082\u3063\u3068\u898b\u308b",
     showLess: "\u9589\u3058\u308b",
 
-    noMatches:
-      "\u6761\u4ef6\u306b\u5408\u3046\u7279\u5178\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f\u3002\u6761\u4ef6\u3092\u5909\u66f4\u3057\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002",
+    noMatches: "このプロフィールに合う特典はカタログにありません。国・地域と、大学生などの選択内容を確認してください。",
 
     switchLanguage: "English",
   },
@@ -460,6 +490,9 @@ function setStaticText() {
   setChip("developer", t("developer"));
   setChip("creator", t("creator"));
   setChip("founder", t("founder"));
+  byId("roles-help").textContent = t("rolesHelp");
+  byId("profile-origin").textContent = t(profileRestored ? "profileRestored" : "profileHint");
+  byId("limited-help").textContent = t("limitedHelp");
 
   const interests = {
     ai: t("ai"),
@@ -737,7 +770,12 @@ function cardHtml(perk) {
 
 function saveButtonHtml(perk) {
   const saved = savedPerks.some(item => item.id === perk.id);
-  return `<button type="button" class="save-button" data-save="${escapeHtml(perk.id)}" aria-pressed="${saved}" aria-label="${escapeHtml(t("save") + ": " + perk.title)}" ${savingIds.has(perk.id) || !savedAvailable ? "disabled" : ""}>${savingIds.has(perk.id) ? escapeHtml(t("saving")) : `${saved ? "★" : "☆"} ${escapeHtml(t(saved ? "saved" : "save"))}`}</button>`;
+  const label = saved ? t("removeSavedLabel") : t("save");
+  const caption = saved ? "★ " + t("saved") + " · " + t("removeSaved") : "☆ " + t("save");
+  const disabled = savingIds.has(perk.id) || !savedAvailable ? "disabled" : "";
+  return '<button type="button" class="save-button" data-save="' + escapeHtml(perk.id)
+    + '" aria-pressed="' + saved + '" aria-label="' + escapeHtml(label + ": " + perk.title)
+    + '" ' + disabled + ">" + escapeHtml(savingIds.has(perk.id) ? t("saving") : caption) + "</button>";
 }
 
 function unavailableSaved() {
@@ -775,6 +813,11 @@ function renderToolbar() {
   byId("profile-title").textContent = t("profileTitle");
   byId("refresh-btn").textContent = t("refresh");
   byId("refresh-btn").disabled = scanning;
+  byId("results-title").textContent = t(filters.view === "saved" ? "savedLibrary" : "matches");
+  byId("saved-btn").textContent = "★ " + t("savedLibrary") + " (" + savedPerks.length + ")";
+  byId("saved-btn").setAttribute("aria-pressed", String(filters.view === "saved"));
+  byId("saved-btn").disabled = !savedAvailable;
+  byId("saved-btn").title = savedAvailable ? "" : t("savedUnavailable");
   byId("perk-search").placeholder = t("search");
   byId("perk-search").setAttribute("aria-label", t("search"));
   byId("offer-filter").options[0].textContent = t("allTypes");
@@ -846,6 +889,41 @@ function catalogStatusHtml() {
   return `<div class="catalog-checked" data-catalog-revision="${escapeHtml(currentCatalog.revision)}">${escapeHtml(t("catalogChecked"))}: ${escapeHtml(refreshed)}</div>`;
 }
 
+function emptyResultsHtml() {
+  const action = (attribute, label) => '<button type="button" class="quiet-button" ' + attribute + ">" + escapeHtml(label) + "</button>";
+  const empty = (message, button = "") => '<div class="empty"><p>' + escapeHtml(message) + "</p>" + button + "</div>";
+  if (filters.view === "saved") {
+    if (!savedAvailable) return empty(t("savedUnavailable"));
+    if (!savedPerks.length) return empty(t("savedEmpty"), action("data-show-matches", t("browsePerks")));
+    return empty(t("noFiltered"), action("data-clear-results", t("clearFilters")));
+  }
+  if (currentError || scanning) return empty(t(currentError || "scanning"));
+  if (!currentCatalog) return empty(t("startSearch"));
+  if (currentResults.length) return empty(t("noFiltered"), action("data-clear-results", t("clearFilters")));
+  if (matchedProfile?.limited_only) {
+    const coverage = deadlineCoverage(catalogData, matchedProfile);
+    if (coverage.total > 0 && coverage.dated === 0) {
+      const message = t("deadlineEmpty")
+        .replace("{region}", t(matchedProfile.country === "JP" ? "japan" : "outsideJapan"))
+        .replace("{count}", String(coverage.total));
+      return empty(message, action("data-clear-deadline", t("includeUndated")));
+    }
+  }
+  return empty(t("noMatches"), action("data-edit-profile", t("editProfile")));
+}
+
+function selectResultView(view, resetFilters = false) {
+  // Opening the saved library clears only local display filters, not the profile.
+  filters = resetFilters ? { view, query: "", type: "all", confirmed: false } : { ...filters, view };
+  if (resetFilters) {
+    byId("perk-search").value = "";
+    byId("offer-filter").value = "all";
+    byId("confirmed-only").checked = false;
+  }
+  exclusiveLimit = freeLimit = INITIAL_LIMIT;
+  renderResults();
+}
+
 function renderResults() {
   const container = byId("results");
   const count = byId("result-count");
@@ -859,8 +937,7 @@ function renderResults() {
     : String(visible.length + unavailable.length) + " of " + total) : "";
 
   if (!visible.length && !unavailable.length) {
-    const key = currentError || (scanning ? "scanning" : filters.view === "saved" ? "savedEmpty" : currentCatalog ? currentResults.length ? "noFiltered" : "noMatches" : "startSearch");
-    container.innerHTML = catalogStatusHtml() + '<div class="empty">' + escapeHtml(t(key)) + "</div>";
+    container.innerHTML = catalogStatusHtml() + emptyResultsHtml();
     return;
   }
 
@@ -880,7 +957,8 @@ function renderResults() {
       + '<p class="checked-date">' + escapeHtml(t("lastChecked")) + ": " + escapeHtml(formatDate(currentRecommendation.last_checked)) + " · " + escapeHtml(t("eligibilityNote")) + "</p>"
       + '<div class="card-actions">' + saveButtonHtml(currentRecommendation) + explainButton + "</div></article>";
   }
-  container.innerHTML = catalogStatusHtml() + aiCard
+  const savedNote = filters.view === "saved" ? '<p class="view-note">' + escapeHtml(t(catalogData ? "savedCurrentNote" : "savedRefreshNote")) + "</p>" : "";
+  container.innerHTML = catalogStatusHtml() + savedNote + aiCard
     + sectionHtml(t("exclusive"), t("exclusiveDesc"), exclusive, exclusiveLimit, "exclusive")
     + sectionHtml(t("freeTools"), t("freeToolsDesc"), freeTools, freeLimit, "free")
     + unavailable.map(unavailableSavedHtml).join("");
@@ -975,13 +1053,18 @@ async function main() {
   let savedQueue = Promise.resolve();
   let savedEpoch = 0;
   const reads = await Promise.allSettled([... [KEYS.profile, KEYS.settings, KEYS.visit].map(key => storage.get({ key })), loadSaved(storage).then(value => ({ value }))]);
-  if (reads[0].status === "fulfilled") applyProfile(normalizeProfile(reads[0].value?.value));
+  if (reads[0].status === "fulfilled") {
+    const restored = normalizeProfile(reads[0].value?.value);
+    profileRestored = Boolean(restored);
+    applyProfile(restored);
+  }
   if (reads[1].status === "fulfilled" && ["en", "ja"].includes(reads[1].value?.value?.language)) currentLanguage = reads[1].value.value.language;
   historyAvailable = reads[2].status === "fulfilled";
   savedAvailable = reads[3].status === "fulfilled";
   previousVisit = historyAvailable ? normalizeVisit(reads[2].value?.value) : null;
   savedPerks = savedAvailable ? normalizeSaved(reads[3].value?.value) : [];
   if (reads.some(result => result.status === "rejected")) notice(t("storageUnavailable"));
+  if (!savedAvailable) notice(t("savedUnavailable"));
   scanning = false;
   button.disabled = false;
   changes = visitChanges(previousVisit, { matched_ids: [], fingerprints: {} });
@@ -1014,31 +1097,30 @@ async function main() {
     storage.set({ key: KEYS.settings, value: { language: currentLanguage } }).catch(() => notice(t("storageFailed")));
   });
   discoveryPanel = mountDiscovery({ root: byId("discovery-panel"), anna, storage, getProfile, getLanguage: () => currentLanguage });
-  byId("profile-panel").addEventListener("change", () => {
+  function onProfileChange() {
     profileEpoch++; explanationEpoch++; explaining = false; profileSummary(); discoveryPanel.profileChanged();
     // Never leave results from one profile under another profile's summary.
     currentResults = []; currentRecommendation = null; currentAiTake = ""; currentAiExplained = false;
     currentCatalog = null; catalogData = null; matchedProfile = null; currentError = "profileChanged";
     status.textContent = t("profileChanged"); renderResults();
+  }
+  byId("profile-panel").addEventListener("change", onProfileChange);
+  byId("saved-btn").addEventListener("click", () => {
+    selectResultView("saved", true);
+    byId("results-title").scrollIntoView({ block: "start" });
+    byId("results").focus({ preventScroll: true });
   });
   byId("radar-views").addEventListener("click", event => {
     const control = event.target.closest("[data-view]");
     if (!control || !VIEWS.includes(control.dataset.view)) return;
-    filters.view = control.dataset.view;
-    exclusiveLimit = freeLimit = INITIAL_LIMIT;
-    renderResults();
+    selectResultView(control.dataset.view, control.dataset.view === "saved");
     byId("radar-views").querySelector('[data-view="' + filters.view + '"]')?.focus();
   });
   byId("perk-search").addEventListener("input", event => { filters.query = event.target.value; renderResults(); });
   byId("offer-filter").addEventListener("change", event => { filters.type = event.target.value; renderResults(); });
   byId("confirmed-only").addEventListener("change", event => { filters.confirmed = event.target.checked; renderResults(); });
   byId("clear-filters").addEventListener("click", () => {
-    filters = { view: "all", query: "", type: "all", confirmed: false };
-    byId("perk-search").value = "";
-    byId("offer-filter").value = "all";
-    byId("confirmed-only").checked = false;
-    exclusiveLimit = freeLimit = INITIAL_LIMIT;
-    renderResults();
+    selectResultView("all", true);
   });
 
   async function explain() {
@@ -1083,6 +1165,23 @@ async function main() {
   }
 
   byId("results").addEventListener("click", async event => {
+    if (event.target.closest("[data-clear-deadline]")) {
+      byId("limited-only").checked = false;
+      onProfileChange();
+      await runRadar();
+      return;
+    }
+    if (event.target.closest("[data-clear-results]")) { selectResultView(filters.view, true); return; }
+    if (event.target.closest("[data-show-matches]")) {
+      selectResultView("all", true);
+      if (!currentCatalog) { byId("profile-panel").open = true; byId("find-btn").focus(); }
+      return;
+    }
+    if (event.target.closest("[data-edit-profile]")) {
+      byId("profile-panel").open = true;
+      byId("country").focus();
+      return;
+    }
     if (event.target.closest("[data-explain]")) { await explain(); return; }
     const control = event.target.closest("[data-save]");
     if (!control || !savedAvailable || savingIds.has(control.dataset.save)) return;
